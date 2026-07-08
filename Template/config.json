@@ -1,0 +1,28 @@
+{
+  "server": {
+    "api_host": "127.0.0.1",
+    "api_port": "8080",
+    "response_delay_seconds": 0.0,
+    "post_response_mode": "400",
+    "get_response_mode": "200",
+    "delete_response_mode": "200",
+    "poll_success_count": 3,
+    "retry_count": 3,
+    "logging_enabled": true,
+    "random_response_enabled": true,
+    "timeout_mode": "Sleep",
+    "high_perf": false
+  },
+  "ui": {
+    "title": "UAEIPP Buyer Participant Simulator",
+    "theme": {
+      "bg_color": "#f1f5f9",
+      "panel_color": "#ffffff",
+      "accent_color": "#7c3aed",
+      "text_color": "#1e293b",
+      "text_muted": "#64748b",
+      "border_color": "#cbd5e1",
+      "dark_mode": true
+    }
+  }
+}
