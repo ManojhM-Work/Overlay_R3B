@@ -66,6 +66,46 @@ app = FastAPI(
     version="1.0.0"
 )
 
+_logging_task = None
+
+async def periodic_logger():
+    last_total = 0
+    idle_logged = False
+
+    while True:
+        await asyncio.sleep(5)
+        logging_enabled = config.Config.get("server", "logging_enabled", default=True)
+        if logging_enabled:
+            with stats_lock:
+                current_total = stats['total']
+                current_processed = stats['processed']
+                current_errors = stats['errors']
+
+            if current_total == 0:
+                last_total = 0
+                idle_logged = False
+                continue
+
+            log_msg = f"[{datetime.now().isoformat()}] Processed: {current_processed} | Total: {current_total} | Errors: {current_errors}"
+
+            if current_total > last_total:
+                logger.info(log_msg)
+                last_total = current_total
+                idle_logged = False
+            elif current_total == last_total and not idle_logged:
+                logger.info(f"{log_msg} (Test Stopped/Idle)")
+                idle_logged = True
+
+@app.on_event("startup")
+async def startup_event():
+    global _logging_task
+    _logging_task = asyncio.create_task(periodic_logger())
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    if _logging_task:
+        _logging_task.cancel()
+
 @app.get("/health")
 def health_check():
     return {"status": "UP", "timestamp": datetime.now().isoformat()}
@@ -491,24 +531,7 @@ async def verify_reserve_buyer_iban(
         with stats_lock:
             stats["errors"] += 1
 
-    # Log Transaction
-    if logging_enabled:
-        log_msg = (
-            f"\n==================================================\n"
-            f"VERIFY RESERVE POST [{datetime.now().isoformat()}]\n"
-            f"--------------------------------------------------\n"
-            f"Transaction ID:    {transaction_id}\n"
-            f"Merchant Trx ID:   {merchant_trx_id}\n"
-            f"Response Mode:     {response_mode}\n"
-            f"Returned HTTP:     {status_code}\n"
-            f"Elapsed Time:      {elapsed_ms:.2f} ms\n"
-            f"Thread ID:         {thread_id}\n"
-            f"Correlation ID:    {headers['x-idempotency-key']}\n"
-            f"Payload:           {json.dumps(req_json, indent=2)}\n"
-            f"Response:          {json.dumps(resp_body, indent=2)}\n"
-            f"=================================================="
-        )
-        logger.info(log_msg)
+    # Periodic logging handles output
 
     send_traffic_update(
         "/p2b/payments/verify-reserve-buyer-iban", "POST", req_json, resp_body, 
@@ -627,23 +650,7 @@ async def get_verify_reserve_buyer_iban(
         with stats_lock:
             stats["errors"] += 1
 
-    # Log Poll Transaction
-    if logging_enabled:
-        log_msg = (
-            f"\n==================================================\n"
-            f"VERIFY RESERVE GET POLL [{datetime.now().isoformat()}]\n"
-            f"--------------------------------------------------\n"
-            f"Transaction ID:    {transactionId}\n"
-            f"Merchant Trx ID:   {merchantTrxId}\n"
-            f"Poll Number:       {current_poll} / {poll_success_count}\n"
-            f"Response Mode:     {response_mode} (Evaluated HTTP: {status_code})\n"
-            f"Elapsed Time:      {elapsed_ms:.2f} ms\n"
-            f"Thread ID:         {thread_id}\n"
-            f"Correlation ID:    {corr_id}\n"
-            f"Response:          {json.dumps(resp_body, indent=2)}\n"
-            f"=================================================="
-        )
-        logger.info(log_msg)
+    # Periodic logging handles output
 
     send_traffic_update(
         "/p2b/payments/verify-reserve-buyer-iban", "GET", {"transactionId": transactionId, "merchantTrxId": merchantTrxId}, resp_body, 
@@ -741,23 +748,7 @@ async def delete_reserve(
         with stats_lock:
             stats["errors"] += 1
 
-    # Log Delete Transaction
-    if logging_enabled:
-        log_msg = (
-            f"\n==================================================\n"
-            f"VERIFY RESERVE DELETE [{datetime.now().isoformat()}]\n"
-            f"--------------------------------------------------\n"
-            f"Transaction ID:    {transactionId}\n"
-            f"State Existed:     {existed}\n"
-            f"Response Mode:     {response_mode}\n"
-            f"Returned HTTP:     {status_code}\n"
-            f"Elapsed Time:      {elapsed_ms:.2f} ms\n"
-            f"Thread ID:         {thread_id}\n"
-            f"Correlation ID:    {corr_id}\n"
-            f"Response:          {json.dumps(resp_body, indent=2)}\n"
-            f"=================================================="
-        )
-        logger.info(log_msg)
+    # Periodic logging handles output
 
     send_traffic_update(
         f"/payments/reserve/{transactionId}", "DELETE", None, resp_body, 
