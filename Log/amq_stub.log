@@ -4375,3 +4375,462 @@ Response:          {
 2026-07-08 15:28:53 [INFO] FastAPI simulator stopped successfully.
 2026-07-08 15:28:59 [INFO] UI Layout panels updated: Tracker=False | Inspector=True
 2026-07-08 15:28:59 [INFO] UI Layout panels updated: Tracker=True | Inspector=True
+2026-07-08 17:53:40 [INFO] FastAPI Server Engine started on 127.0.0.1:8080
+2026-07-08 17:53:41 [INFO] 
+==================================================
+VERIFY RESERVE POST [2026-07-08T17:53:41.180235]
+--------------------------------------------------
+Transaction ID:    P2Bc115903d8e9143d6
+Merchant Trx ID:   MTRX-5e5a9248
+Response Mode:     201 - 000
+Returned HTTP:     201
+Elapsed Time:      0.97 ms
+Thread ID:         28832
+Correlation ID:    IDEMP-0adc047e89
+Payload:           {
+  "transactionId": "P2Bc115903d8e9143d6",
+  "amount": {
+    "requested": 505.1,
+    "currency": "AED"
+  },
+  "reason": "Soccer shoes",
+  "merchant": {
+    "iban": "AE2377661261341267563289",
+    "accountIdentifier": null,
+    "bankCode": "80754",
+    "mcc": "9999",
+    "merchantName": "John Smith Ltd",
+    "sp": "SP808LX",
+    "storeId": "10001",
+    "cashDeskId": "null",
+    "label": "Plaza",
+    "vat": "22672096558",
+    "address": {
+      "building": null,
+      "street": "3-4 Mary St",
+      "city": "Dublin",
+      "postalCode": "D02 N725",
+      "county": null,
+      "country": "IE"
+    }
+  },
+  "buyer": {
+    "iban": "AE2900078115245785609",
+    "accountIdentifier": null,
+    "bankCode": "02DEF",
+    "mobile": "+971581234567",
+    "name": "Matt Damon"
+  },
+  "requestToPay": false,
+  "merchantTrxId": "MTRX-5e5a9248",
+  "transactionType": "P613"
+}
+Response:          {
+  "outcome": "000",
+  "errorMsg": "",
+  "transactionType": "P613",
+  "merchantTrxId": "MTRX-5e5a9248"
+}
+==================================================
+2026-07-08 17:53:41 [INFO] 
+==================================================
+VERIFY RESERVE POST [2026-07-08T17:53:41.203391]
+--------------------------------------------------
+Transaction ID:    P2B710e5f32faef4160
+Merchant Trx ID:   MTRX-b68f9162
+Response Mode:     202 - 000
+Returned HTTP:     202
+Elapsed Time:      0.16 ms
+Thread ID:         28832
+Correlation ID:    IDEMP-1caca8508f
+Payload:           {
+  "transactionId": "P2B710e5f32faef4160",
+  "amount": {
+    "requested": 505.1,
+    "currency": "AED"
+  },
+  "reason": "Soccer shoes",
+  "merchant": {
+    "iban": "AE2377661261341267563289",
+    "accountIdentifier": null,
+    "bankCode": "80754",
+    "mcc": "9999",
+    "merchantName": "John Smith Ltd",
+    "sp": "SP808LX",
+    "storeId": "10001",
+    "cashDeskId": "null",
+    "label": "Plaza",
+    "vat": "22672096558",
+    "address": {
+      "building": null,
+      "street": "3-4 Mary St",
+      "city": "Dublin",
+      "postalCode": "D02 N725",
+      "county": null,
+      "country": "IE"
+    }
+  },
+  "buyer": {
+    "iban": "AE2900078115245785609",
+    "accountIdentifier": null,
+    "bankCode": "02DEF",
+    "mobile": "+971581234567",
+    "name": "Matt Damon"
+  },
+  "requestToPay": false,
+  "merchantTrxId": "MTRX-b68f9162",
+  "transactionType": "P613"
+}
+Response:          {
+  "outcome": "000",
+  "errorMsg": "",
+  "transactionType": "P613",
+  "merchantTrxId": "MTRX-b68f9162"
+}
+==================================================
+2026-07-08 17:53:41 [INFO] 
+==================================================
+VERIFY RESERVE GET POLL [2026-07-08T17:53:41.216260]
+--------------------------------------------------
+Transaction ID:    P2B710e5f32faef4160
+Merchant Trx ID:   MTRX-b68f9162
+Poll Number:       1 / 3
+Response Mode:     200 - 000 (Evaluated HTTP: 202)
+Elapsed Time:      0.11 ms
+Thread ID:         28832
+Correlation ID:    IDEMP-1caca8508f
+Response:          {
+  "outcome": "000",
+  "errorMsg": "",
+  "transactionType": "P613",
+  "merchantTrxId": "MTRX-b68f9162"
+}
+==================================================
+2026-07-08 17:53:41 [INFO] 
+==================================================
+VERIFY RESERVE GET POLL [2026-07-08T17:53:41.225550]
+--------------------------------------------------
+Transaction ID:    P2B710e5f32faef4160
+Merchant Trx ID:   MTRX-b68f9162
+Poll Number:       2 / 3
+Response Mode:     200 - 000 (Evaluated HTTP: 202)
+Elapsed Time:      0.08 ms
+Thread ID:         28832
+Correlation ID:    IDEMP-1caca8508f
+Response:          {
+  "outcome": "000",
+  "errorMsg": "",
+  "transactionType": "P613",
+  "merchantTrxId": "MTRX-b68f9162"
+}
+==================================================
+2026-07-08 17:53:41 [INFO] 
+==================================================
+VERIFY RESERVE GET POLL [2026-07-08T17:53:41.234146]
+--------------------------------------------------
+Transaction ID:    P2B710e5f32faef4160
+Merchant Trx ID:   MTRX-b68f9162
+Poll Number:       3 / 3
+Response Mode:     200 - 000 (Evaluated HTTP: 200)
+Elapsed Time:      0.07 ms
+Thread ID:         28832
+Correlation ID:    IDEMP-1caca8508f
+Response:          {
+  "outcome": "000",
+  "errorMsg": "",
+  "transactionType": "P613",
+  "merchantTrxId": "MTRX-b68f9162"
+}
+==================================================
+2026-07-08 17:53:41 [INFO] 
+==================================================
+VERIFY RESERVE DELETE [2026-07-08T17:53:41.248029]
+--------------------------------------------------
+Transaction ID:    P2B3e5ba075688f4dae
+State Existed:     False
+Response Mode:     200 - 022
+Returned HTTP:     200
+Elapsed Time:      0.10 ms
+Thread ID:         28832
+Correlation ID:    IDEMP-bb90484ec1
+Response:          {
+  "outcome": "022",
+  "errorMsg": "",
+  "transactionId": "P2B3e5ba075688f4dae"
+}
+==================================================
+2026-07-08 17:53:41 [ERROR] [TRANS #7] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-08 17:53:41 [ERROR] [TRANS #8] Request schema validation failed: body.amount: Field required
+2026-07-08 17:53:41 [INFO] FastAPI Server Engine stopping...
+2026-07-08 17:53:41 [INFO] FastAPI Server Engine stopped.
+2026-07-08 17:54:27 [INFO] FastAPI Server Engine started on 127.0.0.1:8080
+2026-07-08 17:54:28 [INFO] 
+==================================================
+VERIFY RESERVE POST [2026-07-08T17:54:28.323013]
+--------------------------------------------------
+Transaction ID:    P2Bb9f17c671b024a1c
+Merchant Trx ID:   MTRX-8f8b9b78
+Response Mode:     201 - 000
+Returned HTTP:     201
+Elapsed Time:      0.21 ms
+Thread ID:         26728
+Correlation ID:    IDEMP-9c6b5d8442
+Payload:           {
+  "transactionId": "P2Bb9f17c671b024a1c",
+  "amount": {
+    "requested": 505.1,
+    "currency": "AED"
+  },
+  "reason": "Soccer shoes",
+  "merchant": {
+    "iban": "AE2377661261341267563289",
+    "accountIdentifier": null,
+    "bankCode": "80754",
+    "mcc": "9999",
+    "merchantName": "John Smith Ltd",
+    "sp": "SP808LX",
+    "storeId": "10001",
+    "cashDeskId": "null",
+    "label": "Plaza",
+    "vat": "22672096558",
+    "address": {
+      "building": null,
+      "street": "3-4 Mary St",
+      "city": "Dublin",
+      "postalCode": "D02 N725",
+      "county": null,
+      "country": "IE"
+    }
+  },
+  "buyer": {
+    "iban": "AE2900078115245785609",
+    "accountIdentifier": null,
+    "bankCode": "02DEF",
+    "mobile": "+971581234567",
+    "name": "Matt Damon"
+  },
+  "requestToPay": false,
+  "merchantTrxId": "MTRX-8f8b9b78",
+  "transactionType": "P613"
+}
+Response:          {
+  "outcome": "000",
+  "errorMsg": "",
+  "transactionType": "P613",
+  "merchantTrxId": "MTRX-8f8b9b78"
+}
+==================================================
+2026-07-08 17:54:28 [INFO] 
+==================================================
+VERIFY RESERVE POST [2026-07-08T17:54:28.339412]
+--------------------------------------------------
+Transaction ID:    P2Be325fa87998846a6
+Merchant Trx ID:   MTRX-c76cae28
+Response Mode:     202 - 000
+Returned HTTP:     202
+Elapsed Time:      0.14 ms
+Thread ID:         26728
+Correlation ID:    IDEMP-25e9aac1f4
+Payload:           {
+  "transactionId": "P2Be325fa87998846a6",
+  "amount": {
+    "requested": 505.1,
+    "currency": "AED"
+  },
+  "reason": "Soccer shoes",
+  "merchant": {
+    "iban": "AE2377661261341267563289",
+    "accountIdentifier": null,
+    "bankCode": "80754",
+    "mcc": "9999",
+    "merchantName": "John Smith Ltd",
+    "sp": "SP808LX",
+    "storeId": "10001",
+    "cashDeskId": "null",
+    "label": "Plaza",
+    "vat": "22672096558",
+    "address": {
+      "building": null,
+      "street": "3-4 Mary St",
+      "city": "Dublin",
+      "postalCode": "D02 N725",
+      "county": null,
+      "country": "IE"
+    }
+  },
+  "buyer": {
+    "iban": "AE2900078115245785609",
+    "accountIdentifier": null,
+    "bankCode": "02DEF",
+    "mobile": "+971581234567",
+    "name": "Matt Damon"
+  },
+  "requestToPay": false,
+  "merchantTrxId": "MTRX-c76cae28",
+  "transactionType": "P613"
+}
+Response:          {
+  "outcome": "000",
+  "errorMsg": "",
+  "transactionType": "P613",
+  "merchantTrxId": "MTRX-c76cae28"
+}
+==================================================
+2026-07-08 17:54:28 [INFO] 
+==================================================
+VERIFY RESERVE GET POLL [2026-07-08T17:54:28.348000]
+--------------------------------------------------
+Transaction ID:    P2Be325fa87998846a6
+Merchant Trx ID:   MTRX-c76cae28
+Poll Number:       1 / 3
+Response Mode:     200 - 000 (Evaluated HTTP: 202)
+Elapsed Time:      0.07 ms
+Thread ID:         26728
+Correlation ID:    IDEMP-25e9aac1f4
+Response:          {
+  "outcome": "000",
+  "errorMsg": "",
+  "transactionType": "P613",
+  "merchantTrxId": "MTRX-c76cae28"
+}
+==================================================
+2026-07-08 17:54:28 [INFO] 
+==================================================
+VERIFY RESERVE GET POLL [2026-07-08T17:54:28.354340]
+--------------------------------------------------
+Transaction ID:    P2Be325fa87998846a6
+Merchant Trx ID:   MTRX-c76cae28
+Poll Number:       2 / 3
+Response Mode:     200 - 000 (Evaluated HTTP: 202)
+Elapsed Time:      0.07 ms
+Thread ID:         26728
+Correlation ID:    IDEMP-25e9aac1f4
+Response:          {
+  "outcome": "000",
+  "errorMsg": "",
+  "transactionType": "P613",
+  "merchantTrxId": "MTRX-c76cae28"
+}
+==================================================
+2026-07-08 17:54:28 [INFO] 
+==================================================
+VERIFY RESERVE GET POLL [2026-07-08T17:54:28.362127]
+--------------------------------------------------
+Transaction ID:    P2Be325fa87998846a6
+Merchant Trx ID:   MTRX-c76cae28
+Poll Number:       3 / 3
+Response Mode:     200 - 000 (Evaluated HTTP: 200)
+Elapsed Time:      0.09 ms
+Thread ID:         26728
+Correlation ID:    IDEMP-25e9aac1f4
+Response:          {
+  "outcome": "000",
+  "errorMsg": "",
+  "transactionType": "P613",
+  "merchantTrxId": "MTRX-c76cae28"
+}
+==================================================
+2026-07-08 17:54:28 [INFO] 
+==================================================
+VERIFY RESERVE DELETE [2026-07-08T17:54:28.373399]
+--------------------------------------------------
+Transaction ID:    P2Be53aa6d55ea64719
+State Existed:     False
+Response Mode:     200 - 022
+Returned HTTP:     200
+Elapsed Time:      0.10 ms
+Thread ID:         26728
+Correlation ID:    IDEMP-c8153153d8
+Response:          {
+  "outcome": "022",
+  "errorMsg": "",
+  "transactionId": "P2Be53aa6d55ea64719"
+}
+==================================================
+2026-07-08 17:54:28 [INFO] 
+==================================================
+VERIFY RESERVE DELETE [2026-07-08T17:54:28.380090]
+--------------------------------------------------
+Transaction ID:    P2Be53aa6d55ea64719
+State Existed:     False
+Response Mode:     200 - 022
+Returned HTTP:     200
+Elapsed Time:      0.07 ms
+Thread ID:         26728
+Correlation ID:    IDEMP-ce5266616f
+Response:          {
+  "outcome": "022",
+  "errorMsg": "",
+  "transactionId": "P2Be53aa6d55ea64719"
+}
+==================================================
+2026-07-08 17:54:28 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-08 17:54:28 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-08 17:54:28 [INFO] FastAPI Server Engine stopping...
+2026-07-08 17:54:28 [INFO] FastAPI Server Engine stopped.
+2026-07-08 17:56:43 [INFO] Initiating background FastAPI server...
+2026-07-08 17:56:43 [INFO] FastAPI Server Engine started on 127.0.0.1:8080
+2026-07-08 17:56:43 [INFO] FastAPI simulator started successfully.
+2026-07-08 17:56:47 [INFO] 
+==================================================
+VERIFY RESERVE POST [2026-07-08T17:56:47.652868]
+--------------------------------------------------
+Transaction ID:    P2B0003P623000000294628
+Merchant Trx ID:   AB78795o0
+Response Mode:     503 - 009 - Service Temporarily Unavailable
+Returned HTTP:     503
+Elapsed Time:      1.28 ms
+Thread ID:         18628
+Correlation ID:    0003P623000000294628
+Payload:           {
+  "transactionId": "P2B0003P623000000294628",
+  "amount": {
+    "requested": 505.1,
+    "currency": "AED"
+  },
+  "reason": "Soccer shoes",
+  "merchant": {
+    "iban": "AE2377661261341267563289",
+    "accountIdentifier": null,
+    "bankCode": "80754",
+    "mcc": "9999",
+    "merchantName": "john smith",
+    "sp": null,
+    "storeId": "10001",
+    "cashDeskId": null,
+    "label": "Magic plaza",
+    "vat": "22672096558",
+    "address": {
+      "building": null,
+      "street": "3-4 Mary St",
+      "city": "Dublin",
+      "postalCode": "D02 N725",
+      "county": null,
+      "country": null
+    }
+  },
+  "buyer": {
+    "iban": "AE2900078115245785609",
+    "accountIdentifier": null,
+    "bankCode": "02DEF",
+    "mobile": "+97158*******939",
+    "name": "matt damon"
+  },
+  "requestToPay": false,
+  "merchantTrxId": "AB78795o0",
+  "transactionType": "P613"
+}
+Response:          {
+  "outcome": "009",
+  "errorMsg": "Service Temporarily Unavailable",
+  "transactionType": "P613",
+  "merchantTrxId": "AB78795o0"
+}
+==================================================
+2026-07-08 17:57:05 [INFO] Stopping FastAPI server...
+2026-07-08 17:57:05 [INFO] FastAPI Server Engine stopping...
+2026-07-08 17:57:06 [INFO] FastAPI Server Engine stopped.
+2026-07-08 17:57:06 [INFO] FastAPI simulator stopped successfully.
+2026-07-08 18:06:58 [INFO] Initiating background FastAPI server...
+2026-07-08 18:06:58 [INFO] FastAPI Server Engine started on 127.0.0.1:8080
+2026-07-08 18:06:58 [INFO] FastAPI simulator started successfully.

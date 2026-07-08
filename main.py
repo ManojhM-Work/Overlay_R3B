@@ -85,6 +85,39 @@ ERROR_OUTCOMES = {
     504: ("504", "Gateway Timeout")
 }
 
+def normalize_post_mode(mode: str) -> str:
+    if mode == "201": return "201 - 000"
+    if mode == "202": return "202 - 000"
+    if mode == "400": return "400 - 001 - Signature calculation failed"
+    if mode == "401": return "401 - 002 - Invalid client credentials"
+    if mode == "404": return "404 - 012 - Transaction not found"
+    if mode == "409": return "409 - 013 - Duplicate transaction ID"
+    if mode == "500": return "500 - 999 - Internal system error"
+    if mode == "503": return "503 - 009 - Service Temporarily Unavailable"
+    return mode
+
+def normalize_get_mode(mode: str) -> str:
+    if mode == "200": return "200 - 000"
+    if mode == "202": return "202 - 000"
+    if mode == "400": return "400 - 001 - Signature calculation failed"
+    if mode == "401": return "401 - 002 - Invalid client credentials"
+    if mode == "404": return "404 - 012 - Transaction not found"
+    if mode == "409": return "409 - 013 - Duplicate transaction ID"
+    if mode == "500": return "500 - 999 - Internal system error"
+    if mode == "503": return "503 - 009 - Service Temporarily Unavailable"
+    return mode
+
+def normalize_delete_mode(mode: str) -> str:
+    if mode == "200": return "200 - 022"
+    if mode == "202": return "202 - 023"
+    if mode == "400": return "400 - 001 - Signature calculation failed"
+    if mode == "401": return "401 - 002 - Invalid client credentials"
+    if mode == "404": return "404 - 012 - Transaction not found"
+    if mode == "409": return "409 - 013 - Duplicate transaction ID"
+    if mode == "500": return "500 - 999 - Internal system error"
+    if mode == "503": return "503 - 009 - Service Temporarily Unavailable"
+    return mode
+
 def make_response_headers(request_headers: dict) -> dict:
     def get_str(key, fallback="N/A"):
         val = request_headers.get(key)
@@ -258,16 +291,60 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 def select_random_response(endpoint: str) -> str:
     if endpoint == "POST":
-        options = ["201", "202", "400", "401", "404", "409", "500", "Timeout", "No Response"]
-        weights = [0.70,  0.15,  0.02,  0.02,  0.02,  0.02,  0.03,  0.02,      0.02]
+        options = [
+            "201 - 000",
+            "202 - 000",
+            "400 - 001 - Signature calculation failed",
+            "400 - 003 - Invalid Headers",
+            "400 - 004 - Invalid Request Parameter",
+            "400 - 005 - Idempotency Key Violation",
+            "400 - 006 - Decryption failed",
+            "401 - 002 - Invalid client credentials",
+            "409 - 013 - Duplicate transaction ID",
+            "500 - 999 - Internal system error",
+            "503 - 009 - Service Temporarily Unavailable",
+            "Timeout",
+            "No Response"
+        ]
+        weights = [0.70, 0.15, 0.005, 0.005, 0.005, 0.005, 0.005, 0.015, 0.015, 0.03, 0.03, 0.015, 0.015]
         return random.choices(options, weights=weights, k=1)[0]
     elif endpoint == "GET":
-        options = ["200", "202", "400", "404", "500", "Timeout", "No Response"]
-        weights = [0.70,  0.15,  0.03,  0.03,  0.05,  0.02,      0.02]
+        options = [
+            "200 - 000",
+            "202 - 000",
+            "400 - 001 - Signature calculation failed",
+            "400 - 003 - Invalid Headers",
+            "400 - 005 - Idempotency Key Violation",
+            "401 - 002 - Invalid client credentials",
+            "404 - 012 - Transaction not found",
+            "409 - 013 - Duplicate transaction ID",
+            "500 - 999 - Internal system error",
+            "503 - 009 - Service Temporarily Unavailable",
+            "Timeout",
+            "No Response"
+        ]
+        weights = [0.70, 0.15, 0.005, 0.005, 0.005, 0.015, 0.015, 0.015, 0.03, 0.03, 0.015, 0.015]
         return random.choices(options, weights=weights, k=1)[0]
     else:  # DELETE
-        options = ["200", "202", "400", "500", "Timeout", "No Response"]
-        weights = [0.80,  0.05,  0.05,  0.05,  0.025,     0.025]
+        options = [
+            "200 - 022",
+            "200 - 024",
+            "202 - 023",
+            "202 - 025",
+            "400 - 001 - Signature calculation failed",
+            "400 - 003 - Invalid Headers",
+            "400 - 004 - Invalid Request Parameter",
+            "400 - 005 - Idempotency Key Violation",
+            "400 - 006 - Decryption failed",
+            "401 - 002 - Invalid client credentials",
+            "404 - 012 - Transaction not found",
+            "409 - 013 - Duplicate transaction ID",
+            "500 - 999 - Internal system error",
+            "503 - 009 - Service Temporarily Unavailable",
+            "Timeout",
+            "No Response"
+        ]
+        weights = [0.40, 0.40, 0.025, 0.025, 0.005, 0.005, 0.005, 0.005, 0.005, 0.015, 0.015, 0.015, 0.03, 0.03, 0.015, 0.015]
         return random.choices(options, weights=weights, k=1)[0]
 
 
@@ -349,7 +426,9 @@ async def verify_reserve_buyer_iban(
     if random_response:
         response_mode = select_random_response("POST")
     else:
-        response_mode = config.Config.get("server", "post_response_mode", default="201")
+        response_mode = config.Config.get("server", "post_response_mode", default="201 - 000")
+
+    response_mode = normalize_post_mode(response_mode)
 
     # Apply Delay non-blockingly
     if delay > 0:
@@ -373,14 +452,29 @@ async def verify_reserve_buyer_iban(
         return await handle_timeout_and_no_response(request, delay, timeout_mode, response_mode)
 
     # Handle Standard Status Codes
-    status_code = int(response_mode)
-    if status_code in (201, 202):
-        resp_body = {
-            "outcome": "000",
-            "errorMsg": "",
-            "transactionType": trx_type,
-            "merchantTrxId": merchant_trx_id
-        }
+    parts = response_mode.split(" - ")
+    status_code = int(parts[0])
+    if len(parts) > 1:
+        outcome = parts[1]
+        error_msg = parts[2] if len(parts) > 2 else ""
+    else:
+        # Backward compatibility fallback
+        if status_code in (201, 202):
+            outcome = "000"
+            error_msg = ""
+        else:
+            err_info = ERROR_OUTCOMES.get(status_code, ("999", "Unknown Simulated Error"))
+            outcome = err_info[0]
+            error_msg = err_info[1]
+
+    resp_body = {
+        "outcome": outcome,
+        "errorMsg": error_msg,
+        "transactionType": trx_type,
+        "merchantTrxId": merchant_trx_id
+    }
+
+    if status_code in (201, 202) and outcome == "000":
         with stats_lock:
             stats["processed"] += 1
         
@@ -394,14 +488,6 @@ async def verify_reserve_buyer_iban(
             poll_counter[transaction_id] = 0
             
     else:
-        # Error responses
-        err_info = ERROR_OUTCOMES.get(status_code, ("999", "Unknown Simulated Error"))
-        resp_body = {
-            "outcome": err_info[0],
-            "errorMsg": err_info[1],
-            "transactionType": trx_type,
-            "merchantTrxId": merchant_trx_id
-        }
         with stats_lock:
             stats["errors"] += 1
 
@@ -461,7 +547,9 @@ async def get_verify_reserve_buyer_iban(
     if random_response:
         response_mode = select_random_response("GET")
     else:
-        response_mode = config.Config.get("server", "get_response_mode", default="200")
+        response_mode = config.Config.get("server", "get_response_mode", default="200 - 000")
+
+    response_mode = normalize_get_mode(response_mode)
 
     # Retrieve correlation keys
     corr_id = raw_headers.get("x-idempotency-key", "N/A")
@@ -499,33 +587,43 @@ async def get_verify_reserve_buyer_iban(
         )
         return await handle_timeout_and_no_response(request, delay, timeout_mode, response_mode)
 
-    # Evaluate dynamic success counter if selected response mode is 200
-    status_code = 200
-    if response_mode == "200":
+    # Evaluate dynamic success counter if selected response mode starts with 200
+    if response_mode.startswith("200"):
         if current_poll < poll_success_count:
             status_code = 202
+            outcome = "000"
+            error_msg = ""
         else:
             status_code = 200
+            outcome = "000"
+            error_msg = ""
     else:
-        status_code = int(response_mode)
+        parts = response_mode.split(" - ")
+        status_code = int(parts[0])
+        if len(parts) > 1:
+            outcome = parts[1]
+            error_msg = parts[2] if len(parts) > 2 else ""
+        else:
+            # Backward compatibility fallback
+            if status_code in (200, 202):
+                outcome = "000"
+                error_msg = ""
+            else:
+                err_info = ERROR_OUTCOMES.get(status_code, ("999", "Unknown Polling Error"))
+                outcome = err_info[0]
+                error_msg = err_info[1]
 
-    if status_code in (200, 202):
-        resp_body = {
-            "outcome": "000",
-            "errorMsg": "",
-            "transactionType": "P613",
-            "merchantTrxId": merchantTrxId if merchantTrxId else "N/A"
-        }
+    resp_body = {
+        "outcome": outcome,
+        "errorMsg": error_msg,
+        "transactionType": "P613",
+        "merchantTrxId": merchantTrxId if merchantTrxId else "N/A"
+    }
+
+    if status_code in (200, 202) and outcome == "000":
         with stats_lock:
             stats["processed"] += 1
     else:
-        err_info = ERROR_OUTCOMES.get(status_code, ("999", "Unknown Polling Error"))
-        resp_body = {
-            "outcome": err_info[0],
-            "errorMsg": err_info[1],
-            "transactionType": "P613",
-            "merchantTrxId": merchantTrxId if merchantTrxId else "N/A"
-        }
         with stats_lock:
             stats["errors"] += 1
 
@@ -582,7 +680,9 @@ async def delete_reserve(
     if random_response:
         response_mode = select_random_response("DELETE")
     else:
-        response_mode = config.Config.get("server", "delete_response_mode", default="200")
+        response_mode = config.Config.get("server", "delete_response_mode", default="200 - 022")
+
+    response_mode = normalize_delete_mode(response_mode)
 
     corr_id = raw_headers.get("x-idempotency-key", "N/A")
     msg_id = transactionId
@@ -613,22 +713,31 @@ async def delete_reserve(
         )
         return await handle_timeout_and_no_response(request, delay, timeout_mode, response_mode)
 
-    status_code = int(response_mode)
-    if status_code in (200, 202):
-        resp_body = {
-            "outcome": "000",
-            "errorMsg": "",
-            "transactionId": transactionId
-        }
+    parts = response_mode.split(" - ")
+    status_code = int(parts[0])
+    if len(parts) > 1:
+        outcome = parts[1]
+        error_msg = parts[2] if len(parts) > 2 else ""
+    else:
+        # Backward compatibility fallback
+        if status_code in (200, 202):
+            outcome = "022"
+            error_msg = ""
+        else:
+            err_info = ERROR_OUTCOMES.get(status_code, ("999", "Unknown Delete Error"))
+            outcome = err_info[0]
+            error_msg = err_info[1]
+
+    resp_body = {
+        "outcome": outcome,
+        "errorMsg": error_msg,
+        "transactionId": transactionId
+    }
+
+    if status_code in (200, 202) and outcome in ("022", "023", "024", "025", "000"):
         with stats_lock:
             stats["processed"] += 1
     else:
-        err_info = ERROR_OUTCOMES.get(status_code, ("999", "Unknown Delete Error"))
-        resp_body = {
-            "outcome": err_info[0],
-            "errorMsg": err_info[1],
-            "transactionId": transactionId
-        }
         with stats_lock:
             stats["errors"] += 1
 

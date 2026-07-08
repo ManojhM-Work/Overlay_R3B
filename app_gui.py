@@ -251,9 +251,47 @@ class SimulatorControlUI:
         self.host_var = tk.StringVar(value=config.Config.get("server", "api_host", default="127.0.0.1"))
         self.port_var = tk.StringVar(value=config.Config.get("server", "api_port", default="8080"))
         self.delay_var = tk.StringVar(value=str(config.Config.get("server", "response_delay_seconds", default=2.0)))
-        self.post_response_var = tk.StringVar(value=config.Config.get("server", "post_response_mode", default="201"))
-        self.get_response_var = tk.StringVar(value=config.Config.get("server", "get_response_mode", default="200"))
-        self.delete_response_var = tk.StringVar(value=config.Config.get("server", "delete_response_mode", default="200"))
+        
+        raw_post = config.Config.get("server", "post_response_mode", default="201 - 000")
+        raw_get = config.Config.get("server", "get_response_mode", default="200 - 000")
+        raw_delete = config.Config.get("server", "delete_response_mode", default="200 - 022")
+
+        def norm_post(val):
+            if val == "201": return "201 - 000"
+            if val == "202": return "202 - 000"
+            if val == "400": return "400 - 001 - Signature calculation failed"
+            if val == "401": return "401 - 002 - Invalid client credentials"
+            if val == "404": return "404 - 012 - Transaction not found"
+            if val == "409": return "409 - 013 - Duplicate transaction ID"
+            if val == "500": return "500 - 999 - Internal system error"
+            if val == "503": return "503 - 009 - Service Temporarily Unavailable"
+            return val
+
+        def norm_get(val):
+            if val == "200": return "200 - 000"
+            if val == "202": return "202 - 000"
+            if val == "400": return "400 - 001 - Signature calculation failed"
+            if val == "401": return "401 - 002 - Invalid client credentials"
+            if val == "404": return "404 - 012 - Transaction not found"
+            if val == "409": return "409 - 013 - Duplicate transaction ID"
+            if val == "500": return "500 - 999 - Internal system error"
+            if val == "503": return "503 - 009 - Service Temporarily Unavailable"
+            return val
+
+        def norm_delete(val):
+            if val == "200": return "200 - 022"
+            if val == "202": return "202 - 023"
+            if val == "400": return "400 - 001 - Signature calculation failed"
+            if val == "401": return "401 - 002 - Invalid client credentials"
+            if val == "404": return "404 - 012 - Transaction not found"
+            if val == "409": return "409 - 013 - Duplicate transaction ID"
+            if val == "500": return "500 - 999 - Internal system error"
+            if val == "503": return "503 - 009 - Service Temporarily Unavailable"
+            return val
+
+        self.post_response_var = tk.StringVar(value=norm_post(raw_post))
+        self.get_response_var = tk.StringVar(value=norm_get(raw_get))
+        self.delete_response_var = tk.StringVar(value=norm_delete(raw_delete))
         self.timeout_mode_var = tk.StringVar(value=config.Config.get("server", "timeout_mode", default="Sleep"))
         self.poll_success_var = tk.StringVar(value=str(config.Config.get("server", "poll_success_count", default=3)))
         self.retry_count_var = tk.StringVar(value=str(config.Config.get("server", "retry_count", default=3)))
@@ -344,17 +382,64 @@ class SimulatorControlUI:
         # POST Response (Row 2)
         tk.Label(card, text="POST Response", font=("Segoe UI", 9), fg=self.text_color, bg=self.panel_color).grid(row=2, column=0, sticky="w", pady=4)
         self.configure_ttk_styles()
-        self.post_resp_menu = ttk.Combobox(card, textvariable=self.post_response_var, values=["201", "202", "400", "401", "404", "409", "500", "Timeout", "No Response"], state="readonly", width=25)
+        post_values = [
+            "201 - 000",
+            "202 - 000",
+            "400 - 001 - Signature calculation failed",
+            "400 - 003 - Invalid Headers",
+            "400 - 004 - Invalid Request Parameter",
+            "400 - 005 - Idempotency Key Violation",
+            "400 - 006 - Decryption failed",
+            "401 - 002 - Invalid client credentials",
+            "409 - 013 - Duplicate transaction ID",
+            "500 - 999 - Internal system error",
+            "503 - 009 - Service Temporarily Unavailable",
+            "Timeout",
+            "No Response"
+        ]
+        self.post_resp_menu = ttk.Combobox(card, textvariable=self.post_response_var, values=post_values, state="readonly", width=45)
         self.post_resp_menu.grid(row=2, column=1, sticky="w", pady=4)
 
         # GET Response (Row 3)
         tk.Label(card, text="GET Response (Poll)", font=("Segoe UI", 9), fg=self.text_color, bg=self.panel_color).grid(row=3, column=0, sticky="w", pady=4)
-        self.get_resp_menu = ttk.Combobox(card, textvariable=self.get_response_var, values=["200", "202", "400", "404", "500", "Timeout", "No Response"], state="readonly", width=25)
+        get_values = [
+            "200 - 000",
+            "202 - 000",
+            "400 - 001 - Signature calculation failed",
+            "400 - 003 - Invalid Headers",
+            "400 - 005 - Idempotency Key Violation",
+            "401 - 002 - Invalid client credentials",
+            "404 - 012 - Transaction not found",
+            "409 - 013 - Duplicate transaction ID",
+            "500 - 999 - Internal system error",
+            "503 - 009 - Service Temporarily Unavailable",
+            "Timeout",
+            "No Response"
+        ]
+        self.get_resp_menu = ttk.Combobox(card, textvariable=self.get_response_var, values=get_values, state="readonly", width=45)
         self.get_resp_menu.grid(row=3, column=1, sticky="w", pady=4)
 
         # DELETE Response (Row 4)
         tk.Label(card, text="DELETE Response", font=("Segoe UI", 9), fg=self.text_color, bg=self.panel_color).grid(row=4, column=0, sticky="w", pady=4)
-        self.delete_resp_menu = ttk.Combobox(card, textvariable=self.delete_response_var, values=["200", "202", "400", "500", "Timeout", "No Response"], state="readonly", width=25)
+        delete_values = [
+            "200 - 022",
+            "200 - 024",
+            "202 - 023",
+            "202 - 025",
+            "400 - 001 - Signature calculation failed",
+            "400 - 003 - Invalid Headers",
+            "400 - 004 - Invalid Request Parameter",
+            "400 - 005 - Idempotency Key Violation",
+            "400 - 006 - Decryption failed",
+            "401 - 002 - Invalid client credentials",
+            "404 - 012 - Transaction not found",
+            "409 - 013 - Duplicate transaction ID",
+            "500 - 999 - Internal system error",
+            "503 - 009 - Service Temporarily Unavailable",
+            "Timeout",
+            "No Response"
+        ]
+        self.delete_resp_menu = ttk.Combobox(card, textvariable=self.delete_response_var, values=delete_values, state="readonly", width=45)
         self.delete_resp_menu.grid(row=4, column=1, sticky="w", pady=4)
 
         # Timeout Mode (Row 5)
@@ -697,7 +782,7 @@ class SimulatorControlUI:
         if show_inspector:
             self.right_paned.add(self.inspector_frame, minsize=200, height=360)
             
-        logger.info(f"UI Layout panels updated: Tracker={show_tracker} | Inspector={show_inspector}")
+        # logger.info(f"UI Layout panels updated: Tracker={show_tracker} | Inspector={show_inspector}")
 
     def configure_ttk_styles(self):
         style = ttk.Style()

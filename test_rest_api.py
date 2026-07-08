@@ -175,7 +175,7 @@ def run_tests():
         print(f"DELETE 1 Status: {resp_del1.status_code}")
         print("DELETE 1 Response:", json.dumps(resp_del1.json(), indent=2))
         assert resp_del1.status_code == 200, f"Expected 200, got {resp_del1.status_code}"
-        assert resp_del1.json()["outcome"] == "000"
+        assert resp_del1.json()["outcome"] == "022"
 
         # Delete repeated time (retry scenario)
         print("Sending retry DELETE request...")
