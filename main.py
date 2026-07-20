@@ -72,6 +72,31 @@ app = FastAPI(
     version="1.0.0"
 )
 
+@app.middleware("http")
+async def endpoint_context_middleware(request: Request, call_next):
+    path = request.url.path
+    endpoint_key = "buyer"
+    if "/p2b/payments/verify-reserve-buyer-iban" in path:
+        endpoint_key = "buyer"
+    elif "/payments/reserve" in path:
+        endpoint_key = "buyer"
+    elif "/p2b/payments/verify-reserve-merchant-iban" in path:
+        endpoint_key = "merchant"
+    elif "/p2b/payments/sct-initiation" in path:
+        endpoint_key = "sct_legacy"
+    elif "/payments/verify-debtor-account" in path:
+        endpoint_key = "verify_debtor"
+    elif "/payments/sct-initiation" in path:
+        endpoint_key = "sct_x2x"
+
+    from config import active_endpoint
+    token = active_endpoint.set(endpoint_key)
+    try:
+        response = await call_next(request)
+        return response
+    finally:
+        active_endpoint.reset(token)
+
 _logging_task = None
 
 async def periodic_logger():

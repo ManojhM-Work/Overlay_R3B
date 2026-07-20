@@ -4997,3 +4997,53 @@ Response:          {
 2026-07-20 17:48:09 [INFO] [2026-07-20T17:48:09.485754] Processed: 8 | Total: 10 | Errors: 2 (Test Stopped/Idle)
 2026-07-20 17:49:34 [INFO] [2026-07-20T17:49:34.611262] Processed: 9 | Total: 11 | Errors: 2
 2026-07-20 17:49:39 [INFO] [2026-07-20T17:49:39.618786] Processed: 9 | Total: 11 | Errors: 2 (Test Stopped/Idle)
+2026-07-20 17:59:05 [INFO] FastAPI Server Engine started on 127.0.0.1:8090
+2026-07-20 17:59:06 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-20 17:59:06 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-20 17:59:06 [ERROR] [TRANS #15] Request schema validation failed: header.merchantBankUserId: Field required
+2026-07-20 17:59:06 [ERROR] [TRANS #16] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 17:59:06 [ERROR] [TRANS #22] Request schema validation failed: header.BankUserId: Field required
+2026-07-20 17:59:06 [ERROR] [TRANS #23] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 17:59:07 [ERROR] [TRANS #34] Request schema validation failed: header.debtorBankUserId: Field required
+2026-07-20 17:59:07 [ERROR] [TRANS #35] Request schema validation failed: body.payment: Field required
+2026-07-20 17:59:07 [INFO] FastAPI Server Engine stopping...
+2026-07-20 17:59:07 [INFO] FastAPI Server Engine stopped.
+2026-07-20 18:10:07 [INFO] Switched configuration tab to: MERCHANT
+2026-07-20 18:10:08 [INFO] Switched configuration tab to: SCT_LEGACY
+2026-07-20 18:10:11 [INFO] Switched configuration tab to: VERIFY_DEBTOR
+2026-07-20 18:10:12 [INFO] Switched configuration tab to: SCT_X2X
+2026-07-20 18:10:14 [INFO] Switched configuration tab to: BUYER
+2026-07-20 18:10:17 [INFO] Initiating background FastAPI server...
+2026-07-20 18:10:17 [INFO] FastAPI Server Engine started on 127.0.0.1:8090
+2026-07-20 18:10:17 [INFO] FastAPI simulator started successfully.
+2026-07-20 18:10:25 [INFO] Switched configuration tab to: MERCHANT
+2026-07-20 18:10:28 [INFO] Switched configuration tab to: SCT_LEGACY
+2026-07-20 18:10:29 [INFO] Switched configuration tab to: VERIFY_DEBTOR
+2026-07-20 18:10:32 [INFO] Stopping FastAPI server...
+2026-07-20 18:10:32 [INFO] FastAPI Server Engine stopping...
+2026-07-20 18:10:32 [INFO] FastAPI Server Engine stopped.
+2026-07-20 18:10:32 [INFO] FastAPI simulator stopped successfully.
+2026-07-20 18:10:38 [INFO] Switched configuration tab to: SCT_X2X
+2026-07-20 18:10:47 [INFO] Switched configuration tab to: SCT_LEGACY
+2026-07-20 18:10:48 [INFO] Switched configuration tab to: VERIFY_DEBTOR
+2026-07-20 18:10:49 [INFO] Switched configuration tab to: SCT_X2X
+2026-07-20 18:10:50 [INFO] Switched configuration tab to: SCT_LEGACY
+2026-07-20 18:10:52 [INFO] Initiating background FastAPI server...
+2026-07-20 18:10:52 [INFO] FastAPI Server Engine started on 127.0.0.1:8090
+2026-07-20 18:10:52 [INFO] FastAPI simulator started successfully.
+2026-07-20 18:11:09 [INFO] Switched configuration tab to: VERIFY_DEBTOR
+2026-07-20 18:11:10 [INFO] Switched configuration tab to: SCT_LEGACY
+2026-07-20 18:11:14 [INFO] Stopping FastAPI server...
+2026-07-20 18:11:14 [INFO] FastAPI Server Engine stopping...
+2026-07-20 18:11:15 [INFO] FastAPI Server Engine stopped.
+2026-07-20 18:11:15 [INFO] FastAPI simulator stopped successfully.
+2026-07-20 18:11:21 [INFO] Initiating background FastAPI server...
+2026-07-20 18:11:21 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-20 18:11:21 [INFO] FastAPI simulator started successfully.
+2026-07-20 18:11:26 [INFO] [2026-07-20T18:11:26.665228] Processed: 0 | Total: 1 | Errors: 1
+2026-07-20 18:11:31 [INFO] [2026-07-20T18:11:31.666412] Processed: 0 | Total: 1 | Errors: 1 (Test Stopped/Idle)
+2026-07-20 18:11:41 [INFO] [2026-07-20T18:11:41.675097] Processed: 0 | Total: 2 | Errors: 2
+2026-07-20 18:11:46 [INFO] [2026-07-20T18:11:46.687033] Processed: 0 | Total: 2 | Errors: 2 (Test Stopped/Idle)
+2026-07-20 18:13:21 [INFO] UI Theme updated to Light Mode.
+2026-07-20 18:13:27 [INFO] Switched configuration tab to: VERIFY_DEBTOR
+2026-07-20 18:13:29 [INFO] Switched configuration tab to: BUYER

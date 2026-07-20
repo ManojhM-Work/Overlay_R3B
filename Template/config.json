@@ -3,9 +3,9 @@
     "api_host": "127.0.0.1",
     "api_port": "8085",
     "response_delay_seconds": 0.0,
-    "post_response_mode": "202 - 000",
-    "get_response_mode": "200 - 000",
-    "delete_response_mode": "200 - 022",
+    "post_response_mode": "202",
+    "get_response_mode": "200",
+    "delete_response_mode": "200",
     "poll_success_count": 3,
     "retry_count": 3,
     "logging_enabled": true,
@@ -22,7 +22,69 @@
       "text_color": "#1e293b",
       "text_muted": "#64748b",
       "border_color": "#cbd5e1",
-      "dark_mode": true
+      "dark_mode": false
+    }
+  },
+  "endpoints": {
+    "buyer": {
+      "response_delay_seconds": 0.0,
+      "post_response_mode": "202 - 000",
+      "get_response_mode": "200 - 000",
+      "delete_response_mode": "200 - 022",
+      "timeout_mode": "Sleep",
+      "poll_success_count": 3,
+      "retry_count": 3,
+      "logging_enabled": true,
+      "random_response_enabled": false,
+      "high_perf": false
+    },
+    "merchant": {
+      "response_delay_seconds": 0.0,
+      "post_response_mode": "202 - 000",
+      "get_response_mode": "200 - 000",
+      "delete_response_mode": "200 - 022",
+      "timeout_mode": "Sleep",
+      "poll_success_count": 3,
+      "retry_count": 3,
+      "logging_enabled": true,
+      "random_response_enabled": false,
+      "high_perf": false
+    },
+    "sct_legacy": {
+      "response_delay_seconds": 0.0,
+      "post_response_mode": "202 - 000",
+      "get_response_mode": "200 - 000",
+      "delete_response_mode": "200 - 022",
+      "timeout_mode": "Sleep",
+      "poll_success_count": 3,
+      "retry_count": 3,
+      "logging_enabled": true,
+      "random_response_enabled": false,
+      "high_perf": false
+    },
+    "verify_debtor": {
+      "response_delay_seconds": 0.0,
+      "post_response_mode": "400 - 005 - Idempotency Key Violation",
+      "get_response_mode": "200 - 000",
+      "delete_response_mode": "200 - 022",
+      "timeout_mode": "Sleep",
+      "poll_success_count": 3,
+      "retry_count": 3,
+      "logging_enabled": true,
+      "random_response_enabled": false,
+      "high_perf": false
+    },
+    "sct_x2x": {
+      "response_delay_seconds": 0.0,
+      "post_response_mode": "500 - 999 - Internal system error",
+      "get_response_mode": "200 - 000",
+      "delete_response_mode": "200 - 022",
+      "timeout_mode": "Sleep",
+      "poll_success_count": 3,
+      "retry_count": 3,
+      "logging_enabled": true,
+      "random_response_enabled": false,
+      "high_perf": false
     }
   }
 }

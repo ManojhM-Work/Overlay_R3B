@@ -1,8 +1,12 @@
 import os
 import json
 
+from contextvars import ContextVar
+
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Template")
 CONFIG_FILE_PATH = os.path.join(TEMPLATE_DIR, "config.json")
+
+active_endpoint: ContextVar[str] = ContextVar("active_endpoint", default=None)
 
 class Config:
     config_data = {}
@@ -58,6 +62,20 @@ class Config:
 
     @classmethod
     def get(cls, *keys, default=None):
+        endpoint_key = active_endpoint.get()
+        if not getattr(cls, "testing_mode", False) and endpoint_key and len(keys) == 2 and keys[0] == "server":
+            # Try to get endpoints -> endpoint_key -> parameter
+            val = cls.config_data
+            for k in ["endpoints", endpoint_key, keys[1]]:
+                if isinstance(val, dict) and k in val:
+                    val = val[k]
+                else:
+                    val = None
+                    break
+            if val is not None:
+                return val
+
+        # Fallback / standard lookup
         val = cls.config_data
         for k in keys:
             if isinstance(val, dict) and k in val:

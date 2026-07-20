@@ -13,6 +13,7 @@ def run_tests():
     print("Starting FastAPI simulator on port 8080...")
     from main import FastAPIServerEngine
     import config
+    config.Config.testing_mode = True
 
     # Initialize configs for test: no delays to speed up test execution
     config.Config.set("server", "api_host", value="127.0.0.1")
