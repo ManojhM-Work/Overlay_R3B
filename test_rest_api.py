@@ -13,6 +13,7 @@ def run_tests():
     print("Starting FastAPI simulator on port 8080...")
     from main import FastAPIServerEngine
     import config
+    config.Config.testing_mode = True
 
     # Initialize configs for test: no delays to speed up test execution
     config.Config.set("server", "api_host", value="127.0.0.1")
@@ -27,7 +28,220 @@ def run_tests():
 
     api_base_url = "http://127.0.0.1:8081"
     post_endpoint = "/p2b/payments/verify-reserve-buyer-iban"
+    merchant_post_endpoint = "/p2b/payments/verify-reserve-merchant-iban"
+    sct_post_endpoint = "/p2b/payments/sct-initiation"
+    debtor_post_endpoint = "/payments/verify-debtor-account"
+    sct_v2_post_endpoint = "/payments/sct-initiation"
     delete_endpoint_tpl = "/payments/reserve/{transactionId}"
+
+    def get_sct_test_headers(idempotency_key=None):
+        ikey = idempotency_key or f"IDEMP-{uuid.uuid4().hex[:10]}"
+        return {
+            "Content-Type": "application/json",
+            "x-idempotency-key": ikey,
+            "x-request-id": f"REQ-{uuid.uuid4().hex[:10]}",
+            "x-timestamp": datetime.now().isoformat(),
+            "client-id": "client-test-id-12345",
+            "authorization": "Bearer dummy_test_token_eyJhbGciOiJSUzI1NiIs...",
+            "x-jws-signature": "eyJ0eXAiOiJKV1QiLC...",
+            "BankUserId": "0000627978",
+            "authorizationType": "01",
+            "x-channel-name": "APP"
+        }
+
+    def get_sct_test_payload(tx_id=None, merchant_trx_id=None, use_iban=True):
+        tid = tx_id or f"P2B{uuid.uuid4().hex[:16]}"
+        mtrx = merchant_trx_id or f"MTRX-{uuid.uuid4().hex[:8]}"
+        
+        merchant = {
+            "bankCode": "80754",
+            "mcc": "9999",
+            "merchantName": "John Smith Ltd",
+            "merchantId": "SP808LX",
+            "sp": "SP808LX",
+            "storeId": "10001",
+            "cashDeskId": "null",
+            "label": "Plaza",
+            "vat": "22672096558",
+            "address": {
+                "street": "3-4 Mary St",
+                "city": "Dublin",
+                "postalCode": "D02 N725",
+                "country": "IE"
+            }
+        }
+        if use_iban:
+            merchant["iban"] = "AE2377661261341267563289"
+        else:
+            merchant["accountIdentifier"] = "21404040Y78115245785511"
+
+        buyer = {
+            "bankCode": "02DEF",
+            "mobile": "+971581234567",
+            "name": "Matt Damon"
+        }
+        if use_iban:
+            buyer["iban"] = "AE2900078115245785609"
+        else:
+            buyer["accountIdentifier"] = "31404040Y78115245782241"
+
+        return {
+            "transactionId": tid,
+            "refTransactionId": f"P2B{uuid.uuid4().hex[:16]}",
+            "refAuthorizationId": f"authId{uuid.uuid4().hex[:8]}",
+            "amount": {
+                "requested": 505.10,
+                "currency": "AED"
+            },
+            "reason": "Soccer shoes",
+            "merchant": merchant,
+            "buyer": buyer,
+            "requestToPay": False,
+            "merchantTrxId": mtrx,
+            "refMerchantTrxId": f"MTRX-REF-{uuid.uuid4().hex[:8]}",
+            "transactionType": "P7IN",
+            "categoryPurpose": "CCP"
+        }
+
+    def get_debtor_test_headers(idempotency_key=None):
+        ikey = idempotency_key or f"IDEMP-{uuid.uuid4().hex[:10]}"
+        return {
+            "Content-Type": "application/json",
+            "x-idempotency-key": ikey,
+            "x-request-id": f"REQ-{uuid.uuid4().hex[:10]}",
+            "x-timestamp": datetime.now().isoformat(),
+            "client-id": "client-test-id-12345",
+            "authorization": "Bearer dummy_test_token_eyJhbGciOiJSUzI1NiIs...",
+            "x-jws-signature": "Detached signature",
+            "debtorBankUserId": "0000627978",
+            "x-channel-name": "APP"
+        }
+
+    def get_debtor_test_payload(tx_id=None, merchant_trx_id=None, use_iban=True):
+        tid = tx_id or f"P2B{uuid.uuid4().hex[:16]}"
+        mtrx = merchant_trx_id or f"MTRX-{uuid.uuid4().hex[:8]}"
+        
+        creditor = {
+            "creditorAccount": {
+                "creditorName": "Mark Brown"
+            },
+            "groupCode": "09999",
+            "bankCode": "09999",
+            "mcc": "7890",
+            "label": "happy grocery",
+            "merchantId": "12345678",
+            "storeId": "00004",
+            "cashDeskId": 10000001,
+            "vat": "1234567890123456"
+        }
+        if use_iban:
+            creditor["creditorAccount"]["iban"] = "AE2900078115245785609"
+        else:
+            creditor["creditorAccount"]["accountIdentifier"] = "30404040Y78115245785609"
+
+        debtor = {
+            "debtorAccount": {
+                "debtorName": "Mark Brown"
+            },
+            "groupCode": "09999",
+            "bankCode": "09999",
+            "mobile": "+971581234567",
+            "mcc": "7890",
+            "label": "happy grocery",
+            "merchantId": "12345678",
+            "storeId": "00004",
+            "cashDeskId": 10000001,
+            "vat": "1234567890123456"
+        }
+        if use_iban:
+            debtor["debtorAccount"]["iban"] = "AE2900078115245785609"
+        else:
+            debtor["debtorAccount"]["accountIdentifier"] = "4141414141414141"
+
+        return {
+            "payment": {
+                "amount": 505.10,
+                "currency": "AED",
+                "transactionType": "P101",
+                "transactionId": tid,
+                "refTransactionId": f"P2B{uuid.uuid4().hex[:16]}",
+                "refMerchantTrxId": f"MTRX-{uuid.uuid4().hex[:8]}",
+                "merchantTrxId": mtrx,
+                "requestToPay": False,
+                "reservefunds": False
+            },
+            "categoryPurpose": "CCP",
+            "creditor": creditor,
+            "debtor": debtor
+        }
+
+
+    def get_merchant_test_headers(idempotency_key=None):
+        ikey = idempotency_key or f"IDEMP-{uuid.uuid4().hex[:10]}"
+        return {
+            "Content-Type": "application/json",
+            "x-idempotency-key": ikey,
+            "x-request-id": f"REQ-{uuid.uuid4().hex[:10]}",
+            "x-timestamp": datetime.now().isoformat(),
+            "client-id": "client-test-id-12345",
+            "authorization": "Bearer dummy_test_token_eyJhbGciOiJSUzI1NiIs...",
+            "x-jws-signature": "eyJ0eXAiOiJKV1QiLC...",
+            "merchantBankUserId": "0000621358",
+            "x-channel-name": "APP"
+        }
+
+    def get_merchant_test_payload(tx_id=None, merchant_trx_id=None, use_iban=True):
+        tid = tx_id or f"P2B{uuid.uuid4().hex[:16]}"
+        mtrx = merchant_trx_id or f"MTRX-{uuid.uuid4().hex[:8]}"
+        
+        merchant = {
+            "bankCode": "80754",
+            "mcc": "9999",
+            "merchantName": "John Smith Ltd",
+            "merchantId": "SP808LX",
+            "sp": "SP808LX",
+            "storeId": "10001",
+            "cashDeskId": "null",
+            "label": "Plaza",
+            "vat": "22672096558",
+            "address": {
+                "street": "3-4 Mary St",
+                "city": "Dublin",
+                "postalCode": "D02 N725",
+                "country": "IE"
+            }
+        }
+        if use_iban:
+            merchant["iban"] = "AE2377661261341267563289"
+        else:
+            merchant["accountIdentifier"] = "21404040Y78115245785511"
+
+        buyer = {
+            "bankCode": "02DEF",
+            "mobile": "+971581234567",
+            "name": "Matt Damon"
+        }
+        if use_iban:
+            buyer["iban"] = "AE2900078115245785609"
+        else:
+            buyer["accountIdentifier"] = "31404040Y78115245782241"
+
+        return {
+            "transactionId": tid,
+            "refTransactionId": f"P2B{uuid.uuid4().hex[:16]}",
+            "amount": {
+                "requested": 505.10,
+                "currency": "AED"
+            },
+            "reason": "Soccer shoes",
+            "merchant": merchant,
+            "buyer": buyer,
+            "requestToPay": False,
+            "merchantTrxId": mtrx,
+            "refMerchantTrxId": f"MTRX-REF-{uuid.uuid4().hex[:8]}",
+            "transactionType": "P7IN",
+            "categoryPurpose": "CCP"
+        }
 
     def get_test_headers(idempotency_key=None):
         ikey = idempotency_key or f"IDEMP-{uuid.uuid4().hex[:10]}"

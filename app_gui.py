@@ -247,14 +247,45 @@ class SimulatorControlUI:
         # Check background log events safely on GUI thread
         self.root.after(100, self.poll_logs_queue)
 
-    def load_settings(self):
-        self.host_var = tk.StringVar(value=config.Config.get("server", "api_host", default="127.0.0.1"))
-        self.port_var = tk.StringVar(value=config.Config.get("server", "api_port", default="8080"))
-        self.delay_var = tk.StringVar(value=str(config.Config.get("server", "response_delay_seconds", default=2.0)))
-        
-        raw_post = config.Config.get("server", "post_response_mode", default="201 - 000")
-        raw_get = config.Config.get("server", "get_response_mode", default="200 - 000")
-        raw_delete = config.Config.get("server", "delete_response_mode", default="200 - 022")
+    def load_settings(self, api_key=None):
+        if api_key:
+            self.current_api_key = api_key
+        else:
+            self.current_api_key = getattr(self, "current_api_key", "buyer")
+
+        e_key = self.current_api_key
+
+        # Host/Port are global server settings
+        self.host_var = getattr(self, "host_var", None)
+        if self.host_var is None:
+            self.host_var = tk.StringVar(value=config.Config.get("server", "api_host", default="127.0.0.1"))
+        else:
+            self.host_var.set(config.Config.get("server", "api_host", default="127.0.0.1"))
+
+        self.port_var = getattr(self, "port_var", None)
+        if self.port_var is None:
+            self.port_var = tk.StringVar(value=config.Config.get("server", "api_port", default="8080"))
+        else:
+            self.port_var.set(config.Config.get("server", "api_port", default="8080"))
+
+        def get_val(param, default):
+            val = config.Config.get("endpoints", e_key, param)
+            if val is not None:
+                return val
+            return config.Config.get("server", param, default=default)
+
+        # Delay
+        delay_val = str(get_val("response_delay_seconds", 2.0))
+        self.delay_var = getattr(self, "delay_var", None)
+        if self.delay_var is None:
+            self.delay_var = tk.StringVar(value=delay_val)
+        else:
+            self.delay_var.set(delay_val)
+
+        # Response modes
+        raw_post = get_val("post_response_mode", "201 - 000")
+        raw_get = get_val("get_response_mode", "200 - 000")
+        raw_delete = get_val("delete_response_mode", "200 - 022")
 
         def norm_post(val):
             if val == "201": return "201 - 000"
@@ -289,30 +320,102 @@ class SimulatorControlUI:
             if val == "503": return "503 - 009 - Service Temporarily Unavailable"
             return val
 
-        self.post_response_var = tk.StringVar(value=norm_post(raw_post))
-        self.get_response_var = tk.StringVar(value=norm_get(raw_get))
-        self.delete_response_var = tk.StringVar(value=norm_delete(raw_delete))
-        self.timeout_mode_var = tk.StringVar(value=config.Config.get("server", "timeout_mode", default="Sleep"))
-        self.poll_success_var = tk.StringVar(value=str(config.Config.get("server", "poll_success_count", default=3)))
-        self.retry_count_var = tk.StringVar(value=str(config.Config.get("server", "retry_count", default=3)))
-        self.logging_enabled_var = tk.BooleanVar(value=config.Config.get("server", "logging_enabled", default=True))
-        self.random_response_var = tk.BooleanVar(value=config.Config.get("server", "random_response_enabled", default=False))
-        self.high_perf_var = tk.BooleanVar(value=config.Config.get("server", "high_perf", default=False))
-        self.dark_mode_var = tk.BooleanVar(value=config.Config.get("ui", "theme", "dark_mode", default=False))
+        post_val = norm_post(raw_post)
+        self.post_response_var = getattr(self, "post_response_var", None)
+        if self.post_response_var is None:
+            self.post_response_var = tk.StringVar(value=post_val)
+        else:
+            self.post_response_var.set(post_val)
+
+        get_val_str = norm_get(raw_get)
+        self.get_response_var = getattr(self, "get_response_var", None)
+        if self.get_response_var is None:
+            self.get_response_var = tk.StringVar(value=get_val_str)
+        else:
+            self.get_response_var.set(get_val_str)
+
+        del_val_str = norm_delete(raw_delete)
+        self.delete_response_var = getattr(self, "delete_response_var", None)
+        if self.delete_response_var is None:
+            self.delete_response_var = tk.StringVar(value=del_val_str)
+        else:
+            self.delete_response_var.set(del_val_str)
+
+        # Timeout, Poll, Retry
+        tm_val = get_val("timeout_mode", "Sleep")
+        self.timeout_mode_var = getattr(self, "timeout_mode_var", None)
+        if self.timeout_mode_var is None:
+            self.timeout_mode_var = tk.StringVar(value=tm_val)
+        else:
+            self.timeout_mode_var.set(tm_val)
+
+        ps_val = str(get_val("poll_success_count", 3))
+        self.poll_success_var = getattr(self, "poll_success_var", None)
+        if self.poll_success_var is None:
+            self.poll_success_var = tk.StringVar(value=ps_val)
+        else:
+            self.poll_success_var.set(ps_val)
+
+        rc_val = str(get_val("retry_count", 3))
+        self.retry_count_var = getattr(self, "retry_count_var", None)
+        if self.retry_count_var is None:
+            self.retry_count_var = tk.StringVar(value=rc_val)
+        else:
+            self.retry_count_var.set(rc_val)
+
+        # Logging, Random, Perf
+        log_val = get_val("logging_enabled", True)
+        self.logging_enabled_var = getattr(self, "logging_enabled_var", None)
+        if self.logging_enabled_var is None:
+            self.logging_enabled_var = tk.BooleanVar(value=log_val)
+        else:
+            self.logging_enabled_var.set(log_val)
+
+        rand_val = get_val("random_response_enabled", False)
+        self.random_response_var = getattr(self, "random_response_var", None)
+        if self.random_response_var is None:
+            self.random_response_var = tk.BooleanVar(value=rand_val)
+        else:
+            self.random_response_var.set(rand_val)
+
+        hp_val = get_val("high_perf", False)
+        self.high_perf_var = getattr(self, "high_perf_var", None)
+        if self.high_perf_var is None:
+            self.high_perf_var = tk.BooleanVar(value=hp_val)
+        else:
+            self.high_perf_var.set(hp_val)
+
+        # Dark Mode
+        dm_val = config.Config.get("ui", "theme", "dark_mode", default=False)
+        self.dark_mode_var = getattr(self, "dark_mode_var", None)
+        if self.dark_mode_var is None:
+            self.dark_mode_var = tk.BooleanVar(value=dm_val)
+        else:
+            self.dark_mode_var.set(dm_val)
 
     def save_settings(self):
+        e_key = getattr(self, "current_api_key", "buyer")
+        
         config.Config.set("server", "api_host", value=self.host_var.get())
         config.Config.set("server", "api_port", value=self.port_var.get())
-        config.Config.set("server", "response_delay_seconds", value=float(self.delay_var.get()) if self.delay_var.get().replace('.','',1).isdigit() else 0.0)
-        config.Config.set("server", "post_response_mode", value=self.post_response_var.get())
-        config.Config.set("server", "get_response_mode", value=self.get_response_var.get())
-        config.Config.set("server", "delete_response_mode", value=self.delete_response_var.get())
-        config.Config.set("server", "timeout_mode", value=self.timeout_mode_var.get())
-        config.Config.set("server", "poll_success_count", value=int(self.poll_success_var.get()) if self.poll_success_var.get().isdigit() else 3)
-        config.Config.set("server", "retry_count", value=int(self.retry_count_var.get()) if self.retry_count_var.get().isdigit() else 3)
-        config.Config.set("server", "logging_enabled", value=self.logging_enabled_var.get())
-        config.Config.set("server", "random_response_enabled", value=self.random_response_var.get())
-        config.Config.set("server", "high_perf", value=self.high_perf_var.get())
+        
+        delay_val = float(self.delay_var.get()) if self.delay_var.get().replace('.','',1).isdigit() else 0.0
+        config.Config.set("endpoints", e_key, "response_delay_seconds", value=delay_val)
+        config.Config.set("endpoints", e_key, "post_response_mode", value=self.post_response_var.get())
+        config.Config.set("endpoints", e_key, "get_response_mode", value=self.get_response_var.get())
+        config.Config.set("endpoints", e_key, "delete_response_mode", value=self.delete_response_var.get())
+        config.Config.set("endpoints", e_key, "timeout_mode", value=self.timeout_mode_var.get())
+        
+        poll_val = int(self.poll_success_var.get()) if self.poll_success_var.get().isdigit() else 3
+        config.Config.set("endpoints", e_key, "poll_success_count", value=poll_val)
+        
+        retry_val = int(self.retry_count_var.get()) if self.retry_count_var.get().isdigit() else 3
+        config.Config.set("endpoints", e_key, "retry_count", value=retry_val)
+        
+        config.Config.set("endpoints", e_key, "logging_enabled", value=self.logging_enabled_var.get())
+        config.Config.set("endpoints", e_key, "random_response_enabled", value=self.random_response_var.get())
+        config.Config.set("endpoints", e_key, "high_perf", value=self.high_perf_var.get())
+        
         config.Config.set("ui", "theme", "dark_mode", value=self.dark_mode_var.get())
 
     def create_header(self):
@@ -354,8 +457,28 @@ class SimulatorControlUI:
         card = tk.Frame(self.left_frame, bg=self.panel_color, bd=1, highlightbackground=self.border_color, highlightthickness=1, padx=15, pady=15)
         card.pack(fill="x", pady=(0, 10))
         
-        # Header Label
-        tk.Label(card, text="Verify Reserve Simulator Settings", font=("Segoe UI", 11, "bold"), fg=self.accent_color, bg=self.panel_color).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 10))
+        # Row 0: API Selection Tabs
+        tabs_frame = tk.Frame(card, bg=self.panel_color)
+        tabs_frame.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 15))
+        
+        self.tab_buttons = {}
+        apis = [
+            ("buyer", "Buyer"),
+            ("merchant", "Merchant"),
+            ("sct_legacy", "SCT - Legacy"),
+            ("verify_debtor", "Verify-Debtor-Account"),
+            ("sct_x2x", "SCT - X2X")
+        ]
+        for key, label in apis:
+            btn = tk.Button(
+                tabs_frame, text=label, font=("Segoe UI", 8, "bold"),
+                bd=0, relief="flat", padx=10, pady=6, cursor="hand2",
+                command=lambda k=key: self.switch_api_tab(k)
+            )
+            btn.pack(side="left", padx=2)
+            self.tab_buttons[key] = btn
+        
+        self.update_tab_ui()
         
         entry_style = {
             "bg": self.entry_bg,
@@ -539,6 +662,42 @@ class SimulatorControlUI:
         # Route standard logs to scrolling Activity Log console safely via queue
         handler = TkinterConsoleHandler(self.log_queue)
         logger.addHandler(handler)
+
+    def switch_api_tab(self, new_key):
+        self.save_settings()
+        self.current_api_key = new_key
+        self.load_settings()
+        self.update_tab_ui()
+        
+        # Disable/enable fields based on server state
+        state_str = "disabled" if self.broker_engine else "normal"
+        readonly_state = "disabled" if self.broker_engine else "readonly"
+        
+        self.post_resp_menu.config(state=readonly_state)
+        self.get_resp_menu.config(state=readonly_state)
+        self.delete_resp_menu.config(state=readonly_state)
+        self.timeout_menu.config(state=readonly_state)
+        self.poll_entry.config(state=state_str)
+        self.retry_entry.config(state=state_str)
+        self.delay_entry.config(state=state_str)
+        
+        # logger.info(f"Switched configuration tab to: {new_key.upper()}")
+
+    def update_tab_ui(self):
+        is_dark = self.dark_mode_var.get()
+        active_key = getattr(self, "current_api_key", "buyer")
+        
+        for key, btn in self.tab_buttons.items():
+            if key == active_key:
+                if is_dark:
+                    btn.configure(bg="#8b5cf6", fg="#ffffff", activebackground="#a78bfa", activeforeground="#ffffff")
+                else:
+                    btn.configure(bg="#7c3aed", fg="#ffffff", activebackground="#6d28d9", activeforeground="#ffffff")
+            else:
+                if is_dark:
+                    btn.configure(bg="#2e1065", fg="#d8b4fe", activebackground="#4c1d95", activeforeground="#d8b4fe")
+                else:
+                    btn.configure(bg="#ede9fe", fg="#5b21b6", activebackground="#ddd6fe", activeforeground="#5b21b6")
 
     def build_right_panel(self):
         # Vertical split container for right panel resizability and deterministic layouts
@@ -876,11 +1035,18 @@ class SimulatorControlUI:
             if hasattr(widget, "draw"):
                 widget.draw()
                 
+        # Update tab UI colors
+        self.update_tab_ui()
+
         # Save dark mode choice
         self.save_settings()
         logger.info(f"UI Theme updated to {'Dark' if is_dark else 'Light'} Mode.")
 
     def update_widget_colors(self, widget):
+        # Skip custom styled tab buttons
+        if hasattr(self, "tab_buttons") and widget in self.tab_buttons.values():
+            return
+
         widget_type = widget.winfo_class()
         
         # Skip canvases that handle their own drawing
