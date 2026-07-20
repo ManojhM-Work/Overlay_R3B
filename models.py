@@ -19,6 +19,7 @@ class Merchant(BaseModel):
     bankCode: Optional[str] = None
     mcc: Optional[str] = None
     merchantName: Optional[str] = None
+    merchantId: Optional[str] = None
     spCode: Optional[str] = Field(default=None, alias="sp")
     storeId: Optional[str] = None
     cashDeskId: Optional[str] = None
@@ -46,8 +47,24 @@ class VerifyReserveRequest(BaseModel):
     merchantTrxId: str
     transactionType: str
 
+class MerchantVerifyReserveRequest(BaseModel):
+    transactionId: str
+    refTransactionId: Optional[str] = None
+    amount: Amount
+    reason: Optional[str] = None
+    merchant: Merchant
+    buyer: Buyer
+    requestToPay: Optional[bool] = False
+    transactionType: str
+    merchantTrxId: str
+    refMerchantTrxId: Optional[str] = None
+    categoryPurpose: str
+
 class VerifyReserveResponse(BaseModel):
     outcome: str
     errorMsg: str
     transactionType: str
     merchantTrxId: str
+    authorisationId: Optional[str] = None
+    authorizationID: Optional[str] = None
+

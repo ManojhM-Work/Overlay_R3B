@@ -12,7 +12,7 @@ from fastapi import FastAPI, Header, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
-from models import VerifyReserveRequest, VerifyReserveResponse
+from models import VerifyReserveRequest, VerifyReserveResponse, MerchantVerifyReserveRequest
 from logger_helper import logger
 import config
 
@@ -31,6 +31,10 @@ stats = {
 poll_counter_lock = threading.Lock()
 poll_counter = {}
 
+# Thread-safe global transaction storage (for tracking transaction types/metadata)
+transaction_store_lock = threading.Lock()
+transaction_store = {}
+
 # Capped list for in-memory history storage
 history_lock = threading.Lock()
 history_records = []
@@ -41,7 +45,7 @@ def set_traffic_queue(q):
     _traffic_queue = q
 
 def reset_stats():
-    global stats, poll_counter, history_records
+    global stats, poll_counter, history_records, transaction_store
     with stats_lock:
         stats = {
             "total": 0,
@@ -50,6 +54,8 @@ def reset_stats():
         }
     with poll_counter_lock:
         poll_counter.clear()
+    with transaction_store_lock:
+        transaction_store.clear()
     with history_lock:
         history_records.clear()
 
@@ -435,6 +441,30 @@ async def validate_headers(
     }
 
 
+async def validate_merchant_headers(
+    request: Request,
+    x_idempotency_key: str = Header(..., alias="x-idempotency-key"),
+    x_request_id: str = Header(..., alias="x-request-id"),
+    x_timestamp: str = Header(..., alias="x-timestamp"),
+    client_id: str = Header(..., alias="client-id"),
+    authorization: str = Header(..., alias="authorization"),
+    x_jws_signature: str = Header(..., alias="x-jws-signature"),
+    merchantBankUserId: str = Header(..., alias="merchantBankUserId"),
+    x_channel_name: str = Header(..., alias="x-channel-name")
+):
+    return {
+        "x-idempotency-key": x_idempotency_key,
+        "x-request-id": x_request_id,
+        "x-timestamp": x_timestamp,
+        "client-id": client_id,
+        "authorization": authorization,
+        "x-jws-signature": x_jws_signature,
+        "merchantBankUserId": merchantBankUserId,
+        "x-channel-name": x_channel_name
+    }
+
+
+
 # ---------------------------------------------------------
 # 1. POST Verify Reserve Buyer IBAN
 # ---------------------------------------------------------
@@ -661,8 +691,253 @@ async def get_verify_reserve_buyer_iban(
 
 
 # ---------------------------------------------------------
+# 1b. POST Verify Reserve Merchant IBAN
+# ---------------------------------------------------------
+@app.post("/p2b/payments/verify-reserve-merchant-iban")
+async def verify_reserve_merchant_iban(
+    request: Request,
+    payload: MerchantVerifyReserveRequest,
+    headers: dict = Depends(validate_merchant_headers)
+):
+    global stats
+    start_time = time.perf_counter()
+    
+    with stats_lock:
+        stats["total"] += 1
+        current_total = stats["total"]
+
+    req_json = payload.dict(by_alias=True)
+    transaction_id = payload.transactionId
+    merchant_trx_id = payload.merchantTrxId
+    trx_type = payload.transactionType
+
+    # Read configuration values
+    delay = float(config.Config.get("server", "response_delay_seconds", default=0.0))
+    random_response = config.Config.get("server", "random_response_enabled", default=False)
+    timeout_mode = config.Config.get("server", "timeout_mode", default="Sleep")
+
+    # Determine POST Response Mode
+    if random_response:
+        response_mode = select_random_response("POST")
+    else:
+        response_mode = config.Config.get("server", "post_response_mode", default="201 - 000")
+
+    response_mode = normalize_post_mode(response_mode)
+
+    # Apply Delay non-blockingly
+    if delay > 0:
+        await asyncio.sleep(delay)
+
+    # Initialize headers
+    resp_headers = make_response_headers(headers)
+
+    # Log variables
+    elapsed_ms = (time.perf_counter() - start_time) * 1000
+
+    # Handle Timeouts
+    if response_mode in ("Timeout", "No Response"):
+        with stats_lock:
+            stats["errors"] += 1
+        send_traffic_update(
+            "/p2b/payments/verify-reserve-merchant-iban", "POST", req_json, None, 
+            "TIMEOUT", elapsed_ms, headers["x-idempotency-key"], transaction_id, 0, headers, resp_headers
+        )
+        return await handle_timeout_and_no_response(request, delay, timeout_mode, response_mode)
+
+    # Handle Standard Status Codes
+    parts = response_mode.split(" - ")
+    status_code = int(parts[0])
+    if len(parts) > 1:
+        outcome = parts[1]
+        error_msg = parts[2] if len(parts) > 2 else ""
+    else:
+        if status_code in (201, 202):
+            outcome = "000"
+            error_msg = ""
+        else:
+            err_info = ERROR_OUTCOMES.get(status_code, ("999", "Unknown Simulated Error"))
+            outcome = err_info[0]
+            error_msg = err_info[1]
+
+    # Generate a random authorization ID if successful
+    auth_id = f"authId{random.randint(1000000000, 9999999999)}" if (status_code in (201, 202) and outcome == "000") else None
+
+    resp_body = {
+        "outcome": outcome,
+        "errorMsg": error_msg,
+        "transactionType": trx_type,
+        "merchantTrxId": merchant_trx_id
+    }
+    # if auth_id:
+        # resp_body["authorisationId"] = auth_id
+        # resp_body["authorizationID"] = auth_id
+
+    if status_code in (201, 202) and outcome == "000":
+        with stats_lock:
+            stats["processed"] += 1
+        
+        # Initialize polling counts and store details for GET route
+        with poll_counter_lock:
+            if len(poll_counter) > 5000:
+                keys_to_del = list(poll_counter.keys())[:1000]
+                for k in keys_to_del:
+                    poll_counter.pop(k, None)
+            poll_counter[transaction_id] = 0
+            
+        with transaction_store_lock:
+            if len(transaction_store) > 5000:
+                keys_to_del = list(transaction_store.keys())[:1000]
+                for k in keys_to_del:
+                    transaction_store.pop(k, None)
+            transaction_store[transaction_id] = {
+                "transactionType": trx_type,
+                "merchantTrxId": merchant_trx_id
+            }
+    else:
+        with stats_lock:
+            stats["errors"] += 1
+
+    send_traffic_update(
+        "/p2b/payments/verify-reserve-merchant-iban", "POST", req_json, resp_body, 
+        str(status_code), elapsed_ms, headers["x-idempotency-key"], transaction_id, 0, headers, resp_headers
+    )
+
+    return JSONResponse(status_code=status_code, content=resp_body, headers=resp_headers)
+
+
+# ---------------------------------------------------------
+# 2b. GET Poll Verify Reserve Merchant IBAN
+# ---------------------------------------------------------
+@app.get("/p2b/payments/verify-reserve-merchant-iban")
+async def get_verify_reserve_merchant_iban(
+    request: Request,
+    transactionId: Optional[str] = None,
+    merchantTrxId: Optional[str] = None
+):
+    global stats
+    start_time = time.perf_counter()
+    
+    with stats_lock:
+        stats["total"] += 1
+        current_total = stats["total"]
+
+    raw_headers = dict(request.headers)
+
+    # Read configuration values
+    delay = float(config.Config.get("server", "response_delay_seconds", default=0.0))
+    random_response = config.Config.get("server", "random_response_enabled", default=False)
+    timeout_mode = config.Config.get("server", "timeout_mode", default="Sleep")
+    poll_success_count = int(config.Config.get("server", "poll_success_count", default=3))
+
+    # Determine GET Response Mode
+    if random_response:
+        response_mode = select_random_response("GET")
+    else:
+        response_mode = config.Config.get("server", "get_response_mode", default="200 - 000")
+
+    response_mode = normalize_get_mode(response_mode)
+
+    # Retrieve correlation keys
+    corr_id = raw_headers.get("x-idempotency-key", "N/A")
+    msg_id = transactionId if transactionId else "N/A"
+
+    # Increment Polling Counter if transaction exists and mode is 200/dynamic polling
+    current_poll = 0
+    if transactionId:
+        with poll_counter_lock:
+            if transactionId in poll_counter:
+                poll_counter[transactionId] += 1
+                current_poll = poll_counter[transactionId]
+            else:
+                poll_counter[transactionId] = 1
+                current_poll = 1
+
+    # Apply Delay non-blockingly
+    if delay > 0:
+        await asyncio.sleep(delay)
+
+    # Initialize headers
+    resp_headers = make_response_headers(raw_headers)
+
+    # Log variables
+    elapsed_ms = (time.perf_counter() - start_time) * 1000
+
+    # Handle Timeouts
+    if response_mode in ("Timeout", "No Response"):
+        with stats_lock:
+            stats["errors"] += 1
+        send_traffic_update(
+            "/p2b/payments/verify-reserve-merchant-iban", "GET", {"transactionId": transactionId, "merchantTrxId": merchantTrxId}, None, 
+            "TIMEOUT", elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
+        )
+        return await handle_timeout_and_no_response(request, delay, timeout_mode, response_mode)
+
+    # Evaluate dynamic success counter if selected response mode starts with 200
+    if response_mode.startswith("200"):
+        if current_poll < poll_success_count:
+            status_code = 202
+            outcome = "000"
+            error_msg = ""
+        else:
+            status_code = 200
+            outcome = "000"
+            error_msg = ""
+    else:
+        parts = response_mode.split(" - ")
+        status_code = int(parts[0])
+        if len(parts) > 1:
+            outcome = parts[1]
+            error_msg = parts[2] if len(parts) > 2 else ""
+        else:
+            if status_code in (200, 202):
+                outcome = "000"
+                error_msg = ""
+            else:
+                err_info = ERROR_OUTCOMES.get(status_code, ("999", "Unknown Polling Error"))
+                outcome = err_info[0]
+                error_msg = err_info[1]
+
+    # Look up transaction metadata
+    trx_type = "P7IN"
+    resolved_merchant_trx_id = merchantTrxId if merchantTrxId else "N/A"
+    with transaction_store_lock:
+        if transactionId in transaction_store:
+            trx_type = transaction_store[transactionId].get("transactionType", "P7IN")
+            if not merchantTrxId:
+                resolved_merchant_trx_id = transaction_store[transactionId].get("merchantTrxId", "N/A")
+
+    # Generate a random authorization ID if successful
+    auth_id = f"authId{random.randint(1000000000, 9999999999)}" if (status_code in (200, 202) and outcome == "000") else None
+
+    resp_body = {
+        "outcome": outcome,
+        "errorMsg": error_msg,
+        "transactionType": trx_type,
+        "merchantTrxId": resolved_merchant_trx_id
+    }
+    # if auth_id:
+    #     resp_body["authorisationId"] = auth_id
+    #     resp_body["authorizationID"] = auth_id
+
+    if status_code in (200, 202) and outcome == "000":
+        with stats_lock:
+            stats["processed"] += 1
+    else:
+        with stats_lock:
+            stats["errors"] += 1
+
+    send_traffic_update(
+        "/p2b/payments/verify-reserve-merchant-iban", "GET", {"transactionId": transactionId, "merchantTrxId": merchantTrxId}, resp_body, 
+        str(status_code), elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
+    )
+
+    return JSONResponse(status_code=status_code, content=resp_body, headers=resp_headers)
+
+
+# ---------------------------------------------------------
 # 3. DELETE Reserve
 # ---------------------------------------------------------
+
 @app.delete("/payments/reserve/{transactionId}")
 async def delete_reserve(
     request: Request,

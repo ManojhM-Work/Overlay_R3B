@@ -16,18 +16,86 @@ def run_tests():
 
     # Initialize configs for test: no delays to speed up test execution
     config.Config.set("server", "api_host", value="127.0.0.1")
-    config.Config.set("server", "api_port", value="8080")
+    config.Config.set("server", "api_port", value="8085")
     config.Config.set("server", "response_delay_seconds", value=0.0)
     config.Config.set("server", "logging_enabled", value=True)
     config.Config.set("server", "random_response_enabled", value=False)
 
-    engine = FastAPIServerEngine("127.0.0.1", 8080)
+    engine = FastAPIServerEngine("127.0.0.1", 8085)
     engine.start()
     time.sleep(1) # wait for uvicorn to initialize
 
-    api_base_url = "http://127.0.0.1:8080"
+    api_base_url = "http://127.0.0.1:8085"
     post_endpoint = "/p2b/payments/verify-reserve-buyer-iban"
+    merchant_post_endpoint = "/p2b/payments/verify-reserve-merchant-iban"
     delete_endpoint_tpl = "/payments/reserve/{transactionId}"
+
+    def get_merchant_test_headers(idempotency_key=None):
+        ikey = idempotency_key or f"IDEMP-{uuid.uuid4().hex[:10]}"
+        return {
+            "Content-Type": "application/json",
+            "x-idempotency-key": ikey,
+            "x-request-id": f"REQ-{uuid.uuid4().hex[:10]}",
+            "x-timestamp": datetime.now().isoformat(),
+            "client-id": "client-test-id-12345",
+            "authorization": "Bearer dummy_test_token_eyJhbGciOiJSUzI1NiIs...",
+            "x-jws-signature": "eyJ0eXAiOiJKV1QiLC...",
+            "merchantBankUserId": "0000621358",
+            "x-channel-name": "APP"
+        }
+
+    def get_merchant_test_payload(tx_id=None, merchant_trx_id=None, use_iban=True):
+        tid = tx_id or f"P2B{uuid.uuid4().hex[:16]}"
+        mtrx = merchant_trx_id or f"MTRX-{uuid.uuid4().hex[:8]}"
+        
+        merchant = {
+            "bankCode": "80754",
+            "mcc": "9999",
+            "merchantName": "John Smith Ltd",
+            "merchantId": "SP808LX",
+            "sp": "SP808LX",
+            "storeId": "10001",
+            "cashDeskId": "null",
+            "label": "Plaza",
+            "vat": "22672096558",
+            "address": {
+                "street": "3-4 Mary St",
+                "city": "Dublin",
+                "postalCode": "D02 N725",
+                "country": "IE"
+            }
+        }
+        if use_iban:
+            merchant["iban"] = "AE2377661261341267563289"
+        else:
+            merchant["accountIdentifier"] = "21404040Y78115245785511"
+
+        buyer = {
+            "bankCode": "02DEF",
+            "mobile": "+971581234567",
+            "name": "Matt Damon"
+        }
+        if use_iban:
+            buyer["iban"] = "AE2900078115245785609"
+        else:
+            buyer["accountIdentifier"] = "31404040Y78115245782241"
+
+        return {
+            "transactionId": tid,
+            "refTransactionId": f"P2B{uuid.uuid4().hex[:16]}",
+            "amount": {
+                "requested": 505.10,
+                "currency": "AED"
+            },
+            "reason": "Soccer shoes",
+            "merchant": merchant,
+            "buyer": buyer,
+            "requestToPay": False,
+            "merchantTrxId": mtrx,
+            "refMerchantTrxId": f"MTRX-REF-{uuid.uuid4().hex[:8]}",
+            "transactionType": "P7IN",
+            "categoryPurpose": "CCP"
+        }
 
     def get_test_headers(idempotency_key=None):
         ikey = idempotency_key or f"IDEMP-{uuid.uuid4().hex[:10]}"
@@ -223,6 +291,114 @@ def run_tests():
         print("-> [PASS] Invalid body schema is caught and returned as structured UAEIPP error.")
     except Exception as e:
         print(f"-> [FAIL] Test 4b failed: {e}")
+
+    # ----------------------------------------------------
+    # TEST 5: MERCHANT SYNCHRONOUS FLOW (POST 201)
+    # ----------------------------------------------------
+    print("\n[TEST 5] Merchant POST Verify Reserve -> HTTP 201 (Sync Flow)")
+    config.Config.set("server", "post_response_mode", value="201")
+    
+    headers = get_merchant_test_headers()
+    payload = get_merchant_test_payload()
+    
+    try:
+        url = api_base_url + merchant_post_endpoint
+        resp = requests.post(url, json=payload, headers=headers)
+        print(f"Status Code: {resp.status_code}")
+        print("Response JSON:", json.dumps(resp.json(), indent=2))
+        
+        assert resp.status_code == 201, f"Expected 201, got {resp.status_code}"
+        assert resp.json()["outcome"] == "000", "Expected outcome '000'"
+        assert resp.json()["merchantTrxId"] == payload["merchantTrxId"], "merchantTrxId mismatch"
+        assert "authorisationId" in resp.json(), "authorisationId should be present"
+        print("-> [PASS] Merchant synchronous POST 201 flow is correct.")
+    except Exception as e:
+        print(f"-> [FAIL] Test 5 failed: {e}")
+
+    # ----------------------------------------------------
+    # TEST 6: MERCHANT ASYNCHRONOUS FLOW (POST 202 + GET Polling)
+    # ----------------------------------------------------
+    print("\n[TEST 6] Merchant POST Verify Reserve -> HTTP 202 & GET Polling (Async Flow)")
+    config.Config.set("server", "post_response_mode", value="202")
+    config.Config.set("server", "get_response_mode", value="200")
+    config.Config.set("server", "poll_success_count", value=3)
+    
+    headers = get_merchant_test_headers()
+    payload = get_merchant_test_payload()
+    tx_id = payload["transactionId"]
+    merchant_trx_id = payload["merchantTrxId"]
+
+    try:
+        # Send POST request
+        url = api_base_url + merchant_post_endpoint
+        resp = requests.post(url, json=payload, headers=headers)
+        print(f"POST Status Code: {resp.status_code}")
+        assert resp.status_code == 202, f"Expected 202, got {resp.status_code}"
+        
+        # Poll GET
+        poll_url = f"{api_base_url}{merchant_post_endpoint}?transactionId={tx_id}&merchantTrxId={merchant_trx_id}"
+        
+        # Poll 1
+        print("Sending Poll 1...")
+        resp_poll1 = requests.get(poll_url, headers=headers)
+        print(f"Poll 1 Status: {resp_poll1.status_code}")
+        assert resp_poll1.status_code == 202, f"Expected 202 on poll 1, got {resp_poll1.status_code}"
+
+        # Poll 2
+        print("Sending Poll 2...")
+        resp_poll2 = requests.get(poll_url, headers=headers)
+        print(f"Poll 2 Status: {resp_poll2.status_code}")
+        assert resp_poll2.status_code == 202, f"Expected 202 on poll 2, got {resp_poll2.status_code}"
+
+        # Poll 3
+        print("Sending Poll 3...")
+        resp_poll3 = requests.get(poll_url, headers=headers)
+        print(f"Poll 3 Status: {resp_poll3.status_code}")
+        print("Poll 3 Response JSON:", json.dumps(resp_poll3.json(), indent=2))
+        assert resp_poll3.status_code == 200, f"Expected 200 on poll 3, got {resp_poll3.status_code}"
+        assert resp_poll3.json()["outcome"] == "000", "Expected outcome '000'"
+        assert resp_poll3.json()["transactionType"] == "P7IN", "Expected transactionType P7IN"
+
+        print("-> [PASS] Merchant asynchronous polling flow behaves correctly (202, 202, 200).")
+    except Exception as e:
+        print(f"-> [FAIL] Test 6 failed: {e}")
+
+    # ----------------------------------------------------
+    # TEST 7: MERCHANT SCHEMA VALIDATION ERRORS
+    # ----------------------------------------------------
+    print("\n[TEST 7] Merchant Schema Validation Exception (Header/Body error checks)")
+    
+    # 7a: Missing mandatory header (merchantBankUserId)
+    try:
+        bad_headers = get_merchant_test_headers()
+        bad_headers.pop("merchantBankUserId") # Missing!
+        
+        url = api_base_url + merchant_post_endpoint
+        resp = requests.post(url, json=get_merchant_test_payload(), headers=bad_headers)
+        print(f"Missing Header Status Code: {resp.status_code}")
+        print("Response JSON:", json.dumps(resp.json(), indent=2))
+        assert resp.status_code == 422
+        assert resp.json()["outcome"] == "999"
+        assert "merchantBankUserId" in resp.json()["errorMsg"]
+        print("-> [PASS] Missing merchantBankUserId header is caught and returned as structured UAEIPP error.")
+    except Exception as e:
+        print(f"-> [FAIL] Test 7a failed: {e}")
+
+    # 7b: Invalid body schema (missing categoryPurpose field)
+    try:
+        bad_payload = get_merchant_test_payload()
+        bad_payload.pop("categoryPurpose") # Missing!
+        
+        url = api_base_url + merchant_post_endpoint
+        resp = requests.post(url, json=bad_payload, headers=get_merchant_test_headers())
+        print(f"Missing categoryPurpose Status Code: {resp.status_code}")
+        print("Response JSON:", json.dumps(resp.json(), indent=2))
+        assert resp.status_code == 422
+        assert resp.json()["outcome"] == "999"
+        assert "categoryPurpose" in resp.json()["errorMsg"]
+        print("-> [PASS] Missing categoryPurpose in body is caught and returned as structured UAEIPP error.")
+    except Exception as e:
+        print(f"-> [FAIL] Test 7b failed: {e}")
 
     # Clean Up
     print("\nStopping server...")

@@ -1,9 +1,9 @@
 {
   "server": {
     "api_host": "127.0.0.1",
-    "api_port": "8080",
-    "response_delay_seconds": 5.0,
-    "post_response_mode": "201 - 000",
+    "api_port": "8085",
+    "response_delay_seconds": 0.0,
+    "post_response_mode": "202 - 000",
     "get_response_mode": "200 - 000",
     "delete_response_mode": "200 - 022",
     "poll_success_count": 3,
