@@ -4895,3 +4895,105 @@ Response:          {
 2026-07-20 16:12:17 [INFO] Initiating background FastAPI server...
 2026-07-20 16:12:17 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
 2026-07-20 16:12:17 [INFO] FastAPI simulator started successfully.
+2026-07-20 16:35:20 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-20 16:35:21 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-20 16:35:21 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-20 16:35:21 [ERROR] [TRANS #15] Request schema validation failed: header.merchantBankUserId: Field required
+2026-07-20 16:35:21 [ERROR] [TRANS #16] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 16:35:21 [INFO] FastAPI Server Engine stopping...
+2026-07-20 16:35:21 [INFO] FastAPI Server Engine stopped.
+2026-07-20 16:35:24 [INFO] [2026-07-20T16:35:24.843399] Processed: 12 | Total: 16 | Errors: 4
+2026-07-20 16:35:29 [INFO] [2026-07-20T16:35:29.854364] Processed: 12 | Total: 16 | Errors: 4 (Test Stopped/Idle)
+2026-07-20 16:35:53 [INFO] FastAPI Server Engine started on 127.0.0.1:8090
+2026-07-20 16:35:54 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-20 16:35:54 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-20 16:35:54 [ERROR] [TRANS #15] Request schema validation failed: header.merchantBankUserId: Field required
+2026-07-20 16:35:54 [ERROR] [TRANS #16] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 16:35:54 [ERROR] [TRANS #22] Request schema validation failed: header.BankUserId: Field required
+2026-07-20 16:35:54 [ERROR] [TRANS #23] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 16:35:54 [INFO] FastAPI Server Engine stopping...
+2026-07-20 16:35:55 [INFO] FastAPI Server Engine stopped.
+2026-07-20 16:36:50 [INFO] FastAPI Server Engine started on 127.0.0.1:8090
+2026-07-20 16:36:51 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-20 16:36:51 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-20 16:36:51 [ERROR] [TRANS #15] Request schema validation failed: header.merchantBankUserId: Field required
+2026-07-20 16:36:51 [ERROR] [TRANS #16] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 16:36:51 [ERROR] [TRANS #22] Request schema validation failed: header.BankUserId: Field required
+2026-07-20 16:36:51 [ERROR] [TRANS #23] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 16:36:51 [INFO] FastAPI Server Engine stopping...
+2026-07-20 16:36:52 [INFO] FastAPI Server Engine stopped.
+2026-07-20 17:06:05 [INFO] FastAPI Server Engine stopping...
+2026-07-20 17:06:06 [INFO] FastAPI Server Engine stopped.
+2026-07-20 17:06:45 [INFO] Initiating background FastAPI server...
+2026-07-20 17:06:45 [INFO] FastAPI Server Engine started on 127.0.0.1:8090
+2026-07-20 17:06:45 [INFO] FastAPI simulator started successfully.
+2026-07-20 17:07:14 [INFO] Stopping FastAPI server...
+2026-07-20 17:07:14 [INFO] FastAPI Server Engine stopping...
+2026-07-20 17:07:15 [INFO] FastAPI Server Engine stopped.
+2026-07-20 17:07:15 [INFO] FastAPI simulator stopped successfully.
+2026-07-20 17:07:21 [INFO] Initiating background FastAPI server...
+2026-07-20 17:07:21 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-20 17:07:21 [INFO] FastAPI simulator started successfully.
+2026-07-20 17:08:42 [ERROR] [TRANS #1] Request schema validation failed: header.authorizationType: Field required; header.x-channel-name: Field required; body.categoryPurpose: Field required
+2026-07-20 17:08:46 [INFO] [2026-07-20T17:08:46.527248] Processed: 0 | Total: 1 | Errors: 1
+2026-07-20 17:08:51 [INFO] [2026-07-20T17:08:51.529288] Processed: 0 | Total: 1 | Errors: 1 (Test Stopped/Idle)
+2026-07-20 17:11:41 [INFO] [2026-07-20T17:11:41.690340] Processed: 1 | Total: 2 | Errors: 1
+2026-07-20 17:11:46 [INFO] [2026-07-20T17:11:46.702352] Processed: 1 | Total: 2 | Errors: 1 (Test Stopped/Idle)
+2026-07-20 17:12:06 [INFO] [2026-07-20T17:12:06.712994] Processed: 2 | Total: 3 | Errors: 1
+2026-07-20 17:12:11 [INFO] [2026-07-20T17:12:11.714031] Processed: 2 | Total: 3 | Errors: 1 (Test Stopped/Idle)
+2026-07-20 17:33:09 [INFO] FastAPI Server Engine started on 127.0.0.1:8090
+2026-07-20 17:33:10 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-20 17:33:10 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-20 17:33:10 [ERROR] [TRANS #15] Request schema validation failed: header.merchantBankUserId: Field required
+2026-07-20 17:33:10 [ERROR] [TRANS #16] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 17:33:10 [ERROR] [TRANS #22] Request schema validation failed: header.BankUserId: Field required
+2026-07-20 17:33:10 [ERROR] [TRANS #23] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 17:33:10 [ERROR] [TRANS #24] Request schema validation failed: body.creditor.cashDeskId: Input should be a valid string; body.debtor.cashDeskId: Input should be a valid string
+2026-07-20 17:33:10 [ERROR] [TRANS #25] Request schema validation failed: body.creditor.cashDeskId: Input should be a valid string; body.debtor.cashDeskId: Input should be a valid string
+2026-07-20 17:33:10 [ERROR] [TRANS #26] Request schema validation failed: body.creditor.cashDeskId: Input should be a valid string; body.debtor.cashDeskId: Input should be a valid string
+2026-07-20 17:33:10 [ERROR] [TRANS #27] Request schema validation failed: body.creditor.cashDeskId: Input should be a valid string; body.debtor.cashDeskId: Input should be a valid string
+2026-07-20 17:33:10 [ERROR] [TRANS #28] Request schema validation failed: header.debtorBankUserId: Field required; body.creditor.cashDeskId: Input should be a valid string; body.debtor.cashDeskId: Input should be a valid string
+2026-07-20 17:33:10 [ERROR] [TRANS #29] Request schema validation failed: body.payment: Field required; body.creditor.cashDeskId: Input should be a valid string; body.debtor.cashDeskId: Input should be a valid string
+2026-07-20 17:33:10 [INFO] FastAPI Server Engine stopping...
+2026-07-20 17:33:11 [INFO] FastAPI Server Engine stopped.
+2026-07-20 17:34:01 [INFO] FastAPI Server Engine started on 127.0.0.1:8090
+2026-07-20 17:34:02 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-20 17:34:02 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-20 17:34:02 [ERROR] [TRANS #15] Request schema validation failed: header.merchantBankUserId: Field required
+2026-07-20 17:34:02 [ERROR] [TRANS #16] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 17:34:02 [ERROR] [TRANS #22] Request schema validation failed: header.BankUserId: Field required
+2026-07-20 17:34:02 [ERROR] [TRANS #23] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 17:34:02 [ERROR] [TRANS #34] Request schema validation failed: header.debtorBankUserId: Field required
+2026-07-20 17:34:02 [ERROR] [TRANS #35] Request schema validation failed: body.payment: Field required
+2026-07-20 17:34:02 [INFO] FastAPI Server Engine stopping...
+2026-07-20 17:34:03 [INFO] FastAPI Server Engine stopped.
+2026-07-20 17:37:28 [INFO] FastAPI Server Engine stopping...
+2026-07-20 17:37:29 [INFO] FastAPI Server Engine stopped.
+2026-07-20 17:37:43 [INFO] Initiating background FastAPI server...
+2026-07-20 17:37:43 [INFO] FastAPI Server Engine started on 127.0.0.1:8090
+2026-07-20 17:37:43 [INFO] FastAPI simulator started successfully.
+2026-07-20 17:37:58 [INFO] Stopping FastAPI server...
+2026-07-20 17:37:58 [INFO] FastAPI Server Engine stopping...
+2026-07-20 17:37:58 [INFO] FastAPI Server Engine stopped.
+2026-07-20 17:37:58 [INFO] FastAPI simulator stopped successfully.
+2026-07-20 17:38:03 [INFO] Initiating background FastAPI server...
+2026-07-20 17:38:03 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-20 17:38:03 [INFO] FastAPI simulator started successfully.
+2026-07-20 17:38:07 [ERROR] [TRANS #1] Request schema validation failed: header.x-idempotency-key: Field required; header.x-request-id: Field required; header.x-timestamp: Field required; header.client-id: Field required; header.authorization: Field required; header.x-channel-name: Field required; body.categoryPurpose: Field required
+2026-07-20 17:38:08 [INFO] [2026-07-20T17:38:08.719362] Processed: 0 | Total: 1 | Errors: 1
+2026-07-20 17:38:13 [INFO] [2026-07-20T17:38:13.733960] Processed: 0 | Total: 1 | Errors: 1 (Test Stopped/Idle)
+2026-07-20 17:42:38 [ERROR] [TRANS #2] Request schema validation failed: body.categoryPurpose: Field required
+2026-07-20 17:42:39 [INFO] [2026-07-20T17:42:39.048256] Processed: 0 | Total: 2 | Errors: 2
+2026-07-20 17:42:44 [INFO] [2026-07-20T17:42:44.049330] Processed: 0 | Total: 2 | Errors: 2 (Test Stopped/Idle)
+2026-07-20 17:43:29 [INFO] [2026-07-20T17:43:29.091935] Processed: 1 | Total: 3 | Errors: 2
+2026-07-20 17:43:34 [INFO] [2026-07-20T17:43:34.108672] Processed: 1 | Total: 3 | Errors: 2 (Test Stopped/Idle)
+2026-07-20 17:43:54 [INFO] [2026-07-20T17:43:54.157704] Processed: 3 | Total: 5 | Errors: 2
+2026-07-20 17:43:59 [INFO] [2026-07-20T17:43:59.171604] Processed: 3 | Total: 5 | Errors: 2 (Test Stopped/Idle)
+2026-07-20 17:44:39 [INFO] [2026-07-20T17:44:39.215141] Processed: 4 | Total: 6 | Errors: 2
+2026-07-20 17:44:44 [INFO] [2026-07-20T17:44:44.231121] Processed: 4 | Total: 6 | Errors: 2 (Test Stopped/Idle)
+2026-07-20 17:45:39 [INFO] [2026-07-20T17:45:39.310870] Processed: 6 | Total: 8 | Errors: 2
+2026-07-20 17:45:44 [INFO] [2026-07-20T17:45:44.313652] Processed: 6 | Total: 8 | Errors: 2 (Test Stopped/Idle)
+2026-07-20 17:48:04 [INFO] [2026-07-20T17:48:04.477303] Processed: 8 | Total: 10 | Errors: 2
+2026-07-20 17:48:09 [INFO] [2026-07-20T17:48:09.485754] Processed: 8 | Total: 10 | Errors: 2 (Test Stopped/Idle)
+2026-07-20 17:49:34 [INFO] [2026-07-20T17:49:34.611262] Processed: 9 | Total: 11 | Errors: 2
+2026-07-20 17:49:39 [INFO] [2026-07-20T17:49:39.618786] Processed: 9 | Total: 11 | Errors: 2 (Test Stopped/Idle)
