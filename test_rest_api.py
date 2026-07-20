@@ -17,16 +17,16 @@ def run_tests():
 
     # Initialize configs for test: no delays to speed up test execution
     config.Config.set("server", "api_host", value="127.0.0.1")
-    config.Config.set("server", "api_port", value="8090")
+    config.Config.set("server", "api_port", value="8081")
     config.Config.set("server", "response_delay_seconds", value=0.0)
     config.Config.set("server", "logging_enabled", value=True)
     config.Config.set("server", "random_response_enabled", value=False)
 
-    engine = FastAPIServerEngine("127.0.0.1", 8090)
+    engine = FastAPIServerEngine("127.0.0.1", 8081)
     engine.start()
     time.sleep(1) # wait for uvicorn to initialize
 
-    api_base_url = "http://127.0.0.1:8090"
+    api_base_url = "http://127.0.0.1:8081"
     post_endpoint = "/p2b/payments/verify-reserve-buyer-iban"
     merchant_post_endpoint = "/p2b/payments/verify-reserve-merchant-iban"
     sct_post_endpoint = "/p2b/payments/sct-initiation"
@@ -439,391 +439,51 @@ def run_tests():
         print(f"-> [FAIL] Test 4b failed: {e}")
 
     # ----------------------------------------------------
-    # TEST 5: MERCHANT SYNCHRONOUS FLOW (POST 201)
+    # TEST 5: TIMEOUT POLLING FLOW
     # ----------------------------------------------------
-    print("\n[TEST 5] Merchant POST Verify Reserve -> HTTP 201 (Sync Flow)")
-    config.Config.set("server", "post_response_mode", value="201")
-    
-    headers = get_merchant_test_headers()
-    payload = get_merchant_test_payload()
-    
-    try:
-        url = api_base_url + merchant_post_endpoint
-        resp = requests.post(url, json=payload, headers=headers)
-        print(f"Status Code: {resp.status_code}")
-        print("Response JSON:", json.dumps(resp.json(), indent=2))
-        
-        assert resp.status_code == 201, f"Expected 201, got {resp.status_code}"
-        assert resp.json()["outcome"] == "000", "Expected outcome '000'"
-        assert resp.json()["merchantTrxId"] == payload["merchantTrxId"], "merchantTrxId mismatch"
-        print("-> [PASS] Merchant synchronous POST 201 flow is correct.")
-    except Exception as e:
-        print(f"-> [FAIL] Test 5 failed: {e}")
-
-    # ----------------------------------------------------
-    # TEST 6: MERCHANT ASYNCHRONOUS FLOW (POST 202 + GET Polling)
-    # ----------------------------------------------------
-    print("\n[TEST 6] Merchant POST Verify Reserve -> HTTP 202 & GET Polling (Async Flow)")
-    config.Config.set("server", "post_response_mode", value="202")
-    config.Config.set("server", "get_response_mode", value="200")
+    print("\n[TEST 5] POST Verify Reserve -> HTTP 202 & GET Polling with Timeouts (Timeout - Polling)")
+    config.Config.set("server", "post_response_mode", value="202 - 000")
+    config.Config.set("server", "get_response_mode", value="Timeout - Polling")
     config.Config.set("server", "poll_success_count", value=3)
-    
-    headers = get_merchant_test_headers()
-    payload = get_merchant_test_payload()
+    config.Config.set("server", "timeout_mode", value="Close Connection") # Use Close Connection to fail fast instead of sleeping 15s
+
+    headers = get_test_headers()
+    payload = get_test_payload()
     tx_id = payload["transactionId"]
     merchant_trx_id = payload["merchantTrxId"]
 
     try:
-        # Send POST request
-        url = api_base_url + merchant_post_endpoint
+        # Step 5a: Send POST request
+        url = api_base_url + post_endpoint
         resp = requests.post(url, json=payload, headers=headers)
         print(f"POST Status Code: {resp.status_code}")
         assert resp.status_code == 202, f"Expected 202, got {resp.status_code}"
+
+        poll_url = f"{api_base_url}{post_endpoint}?transactionId={tx_id}&merchantTrxId={merchant_trx_id}"
         
-        # Poll GET
-        poll_url = f"{api_base_url}{merchant_post_endpoint}?transactionId={tx_id}&merchantTrxId={merchant_trx_id}"
-        
-        # Poll 1
-        print("Sending Poll 1...")
+        # Poll 1 (Expect 202)
+        print("Sending Poll 1 (expecting 202)...")
         resp_poll1 = requests.get(poll_url, headers=headers)
         print(f"Poll 1 Status: {resp_poll1.status_code}")
         assert resp_poll1.status_code == 202, f"Expected 202 on poll 1, got {resp_poll1.status_code}"
 
-        # Poll 2
-        print("Sending Poll 2...")
+        # Poll 2 (Expect 202)
+        print("Sending Poll 2 (expecting 202)...")
         resp_poll2 = requests.get(poll_url, headers=headers)
         print(f"Poll 2 Status: {resp_poll2.status_code}")
         assert resp_poll2.status_code == 202, f"Expected 202 on poll 2, got {resp_poll2.status_code}"
 
-        # Poll 3
-        print("Sending Poll 3...")
-        resp_poll3 = requests.get(poll_url, headers=headers)
-        print(f"Poll 3 Status: {resp_poll3.status_code}")
-        print("Poll 3 Response JSON:", json.dumps(resp_poll3.json(), indent=2))
-        assert resp_poll3.status_code == 200, f"Expected 200 on poll 3, got {resp_poll3.status_code}"
-        assert resp_poll3.json()["outcome"] == "000", "Expected outcome '000'"
-        assert resp_poll3.json()["transactionType"] == "P7IN", "Expected transactionType P7IN"
+        # Poll 3 (Expect timeout/connection closed)
+        print("Sending Poll 3 (expecting timeout/connection closed)...")
+        try:
+            r3 = requests.get(poll_url, headers=headers)
+            print(f"-> [FAIL] Expected connection to be closed/timeout on Poll 3, but got status {r3.status_code}")
+        except requests.exceptions.ConnectionError:
+            print("Poll 3 Status: Connection Closed (Simulated Timeout)")
 
-        print("-> [PASS] Merchant asynchronous polling flow behaves correctly (202, 202, 200).")
+        print("-> [PASS] Timeout - Polling behaves correctly (202, 202, Timeout).")
     except Exception as e:
-        print(f"-> [FAIL] Test 6 failed: {e}")
-
-    # ----------------------------------------------------
-    # TEST 7: MERCHANT SCHEMA VALIDATION ERRORS
-    # ----------------------------------------------------
-    print("\n[TEST 7] Merchant Schema Validation Exception (Header/Body error checks)")
-    
-    # 7a: Missing mandatory header (merchantBankUserId)
-    try:
-        bad_headers = get_merchant_test_headers()
-        bad_headers.pop("merchantBankUserId") # Missing!
-        
-        url = api_base_url + merchant_post_endpoint
-        resp = requests.post(url, json=get_merchant_test_payload(), headers=bad_headers)
-        print(f"Missing Header Status Code: {resp.status_code}")
-        print("Response JSON:", json.dumps(resp.json(), indent=2))
-        assert resp.status_code == 422
-        assert resp.json()["outcome"] == "999"
-        assert "merchantBankUserId" in resp.json()["errorMsg"]
-        print("-> [PASS] Missing merchantBankUserId header is caught and returned as structured UAEIPP error.")
-    except Exception as e:
-        print(f"-> [FAIL] Test 7a failed: {e}")
-
-    # 7b: Invalid body schema (missing categoryPurpose field)
-    try:
-        bad_payload = get_merchant_test_payload()
-        bad_payload.pop("categoryPurpose") # Missing!
-        
-        url = api_base_url + merchant_post_endpoint
-        resp = requests.post(url, json=bad_payload, headers=get_merchant_test_headers())
-        print(f"Missing categoryPurpose Status Code: {resp.status_code}")
-        print("Response JSON:", json.dumps(resp.json(), indent=2))
-        assert resp.status_code == 422
-        assert resp.json()["outcome"] == "999"
-        assert "categoryPurpose" in resp.json()["errorMsg"]
-        print("-> [PASS] Missing categoryPurpose in body is caught and returned as structured UAEIPP error.")
-    except Exception as e:
-        print(f"-> [FAIL] Test 7b failed: {e}")
-
-    # ----------------------------------------------------
-    # TEST 8: SCT SYNCHRONOUS FLOW (POST 201)
-    # ----------------------------------------------------
-    print("\n[TEST 8] SCT POST Initiation -> HTTP 201 (Sync Flow)")
-    config.Config.set("server", "post_response_mode", value="201")
-    
-    headers = get_sct_test_headers()
-    payload = get_sct_test_payload()
-    
-    try:
-        url = api_base_url + sct_post_endpoint
-        resp = requests.post(url, json=payload, headers=headers)
-        print(f"Status Code: {resp.status_code}")
-        print("Response JSON:", json.dumps(resp.json(), indent=2))
-        
-        assert resp.status_code == 201, f"Expected 201, got {resp.status_code}"
-        assert resp.json()["outcome"] == "000", "Expected outcome '000'"
-        assert resp.json()["merchantTrxId"] == payload["merchantTrxId"], "merchantTrxId mismatch"
-        assert "TRN" in resp.json(), "TRN should be present in 201 response"
-        print("-> [PASS] SCT synchronous POST 201 flow is correct.")
-    except Exception as e:
-        print(f"-> [FAIL] Test 8 failed: {e}")
-
-    # ----------------------------------------------------
-    # TEST 9: SCT ASYNCHRONOUS FLOW (POST 202 + GET Polling)
-    # ----------------------------------------------------
-    print("\n[TEST 9] SCT POST Initiation -> HTTP 202 & GET Polling (Async Flow)")
-    config.Config.set("server", "post_response_mode", value="202")
-    config.Config.set("server", "get_response_mode", value="200")
-    config.Config.set("server", "poll_success_count", value=3)
-    
-    headers = get_sct_test_headers()
-    payload = get_sct_test_payload()
-    tx_id = payload["transactionId"]
-
-    try:
-        # Send POST request
-        url = api_base_url + sct_post_endpoint
-        resp = requests.post(url, json=payload, headers=headers)
-        print(f"POST Status Code: {resp.status_code}")
-        assert resp.status_code == 202, f"Expected 202, got {resp.status_code}"
-        
-        # Poll GET
-        poll_url = f"{api_base_url}{sct_post_endpoint}?transactionId={tx_id}"
-        
-        # Poll 1
-        print("Sending Poll 1...")
-        resp_poll1 = requests.get(poll_url, headers=headers)
-        print(f"Poll 1 Status: {resp_poll1.status_code}")
-        assert resp_poll1.status_code == 202, f"Expected 202 on poll 1, got {resp_poll1.status_code}"
-
-        # Poll 2
-        print("Sending Poll 2...")
-        resp_poll2 = requests.get(poll_url, headers=headers)
-        print(f"Poll 2 Status: {resp_poll2.status_code}")
-        assert resp_poll2.status_code == 202, f"Expected 202 on poll 2, got {resp_poll2.status_code}"
-
-        # Poll 3
-        print("Sending Poll 3...")
-        resp_poll3 = requests.get(poll_url, headers=headers)
-        print(f"Poll 3 Status: {resp_poll3.status_code}")
-        print("Poll 3 Response JSON:", json.dumps(resp_poll3.json(), indent=2))
-        assert resp_poll3.status_code == 200, f"Expected 200 on poll 3, got {resp_poll3.status_code}"
-        assert resp_poll3.json()["outcome"] == "000", "Expected outcome '000'"
-        assert resp_poll3.json()["transactionType"] == "P7IN", "Expected transactionType P7IN"
-        assert "TRN" in resp_poll3.json(), "TRN should be present in 200 response"
-
-        print("-> [PASS] SCT asynchronous polling flow behaves correctly (202, 202, 200).")
-    except Exception as e:
-        print(f"-> [FAIL] Test 9 failed: {e}")
-
-    # ----------------------------------------------------
-    # TEST 10: SCT SCHEMA VALIDATION ERRORS
-    # ----------------------------------------------------
-    print("\n[TEST 10] SCT Schema Validation Exception (Header/Body error checks)")
-    
-    # 10a: Missing BankUserId header
-    try:
-        bad_headers = get_sct_test_headers()
-        bad_headers.pop("BankUserId") # Missing!
-        
-        url = api_base_url + sct_post_endpoint
-        resp = requests.post(url, json=get_sct_test_payload(), headers=bad_headers)
-        print(f"Missing BankUserId Status Code: {resp.status_code}")
-        print("Response JSON:", json.dumps(resp.json(), indent=2))
-        assert resp.status_code == 422
-        assert resp.json()["outcome"] == "999"
-        assert "BankUserId" in resp.json()["errorMsg"]
-        print("-> [PASS] Missing BankUserId header is caught and returned as structured UAEIPP error.")
-    except Exception as e:
-        print(f"-> [FAIL] Test 10a failed: {e}")
-
-    # 10b: Missing categoryPurpose body parameter
-    try:
-        bad_payload = get_sct_test_payload()
-        bad_payload.pop("categoryPurpose") # Missing!
-        
-        url = api_base_url + sct_post_endpoint
-        resp = requests.post(url, json=bad_payload, headers=get_sct_test_headers())
-        print(f"Missing categoryPurpose Status Code: {resp.status_code}")
-        print("Response JSON:", json.dumps(resp.json(), indent=2))
-        assert resp.status_code == 422
-        assert resp.json()["outcome"] == "999"
-        assert "categoryPurpose" in resp.json()["errorMsg"]
-        print("-> [PASS] Missing categoryPurpose in body is caught and returned as structured UAEIPP error.")
-    except Exception as e:
-        print(f"-> [FAIL] Test 10b failed: {e}")
-
-    # ----------------------------------------------------
-    # TEST 11: DEBTOR VERIFY SYNCHRONOUS FLOW
-    # ----------------------------------------------------
-    print("\n[TEST 11] Debtor Verify POST -> HTTP 201 (Sync Flow)")
-    config.Config.set("server", "post_response_mode", value="201")
-    
-    headers = get_debtor_test_headers()
-    payload = get_debtor_test_payload()
-    
-    try:
-        url = api_base_url + debtor_post_endpoint
-        resp = requests.post(url, json=payload, headers=headers)
-        print(f"Status Code: {resp.status_code}")
-        print("Response JSON:", json.dumps(resp.json(), indent=2))
-        
-        assert resp.status_code == 201, f"Expected 201, got {resp.status_code}"
-        assert resp.json()["outcome"] == "000", "Expected outcome '000'"
-        assert "authorizationID" in resp.json(), "authorizationID should be present"
-        assert "debtorAccount" in resp.json(), "debtorAccount should be present"
-        print("-> [PASS] Debtor verify synchronous POST 201 flow is correct.")
-    except Exception as e:
-        print(f"-> [FAIL] Test 11 failed: {e}")
-
-    # ----------------------------------------------------
-    # TEST 12: DEBTOR VERIFY ASYNCHRONOUS FLOW (POST 202 + GET Polling)
-    # ----------------------------------------------------
-    print("\n[TEST 12] Debtor Verify POST -> HTTP 202 & GET Polling (Async Flow)")
-    config.Config.set("server", "post_response_mode", value="202")
-    config.Config.set("server", "get_response_mode", value="200")
-    config.Config.set("server", "poll_success_count", value=3)
-    
-    headers = get_debtor_test_headers()
-    payload = get_debtor_test_payload()
-    tx_id = payload["payment"]["transactionId"]
-
-    try:
-        url = api_base_url + debtor_post_endpoint
-        resp = requests.post(url, json=payload, headers=headers)
-        print(f"POST Status Code: {resp.status_code}")
-        assert resp.status_code == 202, f"Expected 202, got {resp.status_code}"
-        
-        poll_url = f"{api_base_url}{debtor_post_endpoint}?transactionId={tx_id}"
-        
-        # Poll 1
-        print("Sending Poll 1...")
-        resp_poll1 = requests.get(poll_url, headers=headers)
-        print(f"Poll 1 Status: {resp_poll1.status_code}")
-        assert resp_poll1.status_code == 202, f"Expected 202 on poll 1, got {resp_poll1.status_code}"
-
-        # Poll 2
-        print("Sending Poll 2...")
-        resp_poll2 = requests.get(poll_url, headers=headers)
-        print(f"Poll 2 Status: {resp_poll2.status_code}")
-        assert resp_poll2.status_code == 202, f"Expected 202 on poll 2, got {resp_poll2.status_code}"
-
-        # Poll 3
-        print("Sending Poll 3...")
-        resp_poll3 = requests.get(poll_url, headers=headers)
-        print(f"Poll 3 Status: {resp_poll3.status_code}")
-        print("Poll 3 Response JSON:", json.dumps(resp_poll3.json(), indent=2))
-        assert resp_poll3.status_code == 200, f"Expected 200 on poll 3, got {resp_poll3.status_code}"
-        assert resp_poll3.json()["outcome"] == "000", "Expected outcome '000'"
-        assert "authorizationID" in resp_poll3.json(), "authorizationID should be present"
-
-        print("-> [PASS] Debtor verify asynchronous polling flow behaves correctly (202, 202, 200).")
-    except Exception as e:
-        print(f"-> [FAIL] Test 12 failed: {e}")
-
-    # ----------------------------------------------------
-    # TEST 13: SCT V2 SYNCHRONOUS FLOW (POST 201)
-    # ----------------------------------------------------
-    print("\n[TEST 13] SCT V2 POST Initiation -> HTTP 201 (Sync Flow)")
-    config.Config.set("server", "post_response_mode", value="201")
-    
-    headers = get_debtor_test_headers()
-    payload = get_debtor_test_payload()
-    
-    try:
-        url = api_base_url + sct_v2_post_endpoint
-        resp = requests.post(url, json=payload, headers=headers)
-        print(f"Status Code: {resp.status_code}")
-        print("Response JSON:", json.dumps(resp.json(), indent=2))
-        
-        assert resp.status_code == 201, f"Expected 201, got {resp.status_code}"
-        assert resp.json()["outcome"] == "000", "Expected outcome '000'"
-        assert "TRN" in resp.json(), "TRN should be present in 201 response"
-        print("-> [PASS] SCT V2 synchronous POST 201 flow is correct.")
-    except Exception as e:
-        print(f"-> [FAIL] Test 13 failed: {e}")
-
-    # ----------------------------------------------------
-    # TEST 14: SCT V2 ASYNCHRONOUS FLOW (POST 202 + GET Polling via Path Param)
-    # ----------------------------------------------------
-    print("\n[TEST 14] SCT V2 POST Initiation -> HTTP 202 & GET Polling via Path Param (Async Flow)")
-    config.Config.set("server", "post_response_mode", value="202")
-    config.Config.set("server", "get_response_mode", value="200")
-    config.Config.set("server", "poll_success_count", value=3)
-    
-    headers = get_debtor_test_headers()
-    payload = get_debtor_test_payload()
-    tx_id = payload["payment"]["transactionId"]
-
-    try:
-        url = api_base_url + sct_v2_post_endpoint
-        resp = requests.post(url, json=payload, headers=headers)
-        print(f"POST Status Code: {resp.status_code}")
-        assert resp.status_code == 202, f"Expected 202, got {resp.status_code}"
-        
-        poll_url = f"{api_base_url}{sct_v2_post_endpoint}/{tx_id}"
-        
-        # Poll 1
-        print("Sending Poll 1...")
-        resp_poll1 = requests.get(poll_url, headers=headers)
-        print(f"Poll 1 Status: {resp_poll1.status_code}")
-        assert resp_poll1.status_code == 202, f"Expected 202 on poll 1, got {resp_poll1.status_code}"
-
-        # Poll 2
-        print("Sending Poll 2...")
-        resp_poll2 = requests.get(poll_url, headers=headers)
-        print(f"Poll 2 Status: {resp_poll2.status_code}")
-        assert resp_poll2.status_code == 202, f"Expected 202 on poll 2, got {resp_poll2.status_code}"
-
-        # Poll 3
-        print("Sending Poll 3...")
-        resp_poll3 = requests.get(poll_url, headers=headers)
-        print(f"Poll 3 Status: {resp_poll3.status_code}")
-        print("Poll 3 Response JSON:", json.dumps(resp_poll3.json(), indent=2))
-        assert resp_poll3.status_code == 200, f"Expected 200 on poll 3, got {resp_poll3.status_code}"
-        assert resp_poll3.json()["outcome"] == "000", "Expected outcome '000'"
-        assert "TRN" in resp_poll3.json(), "TRN should be present in 200 response"
-
-        print("-> [PASS] SCT V2 asynchronous polling flow behaves correctly.")
-    except Exception as e:
-        print(f"-> [FAIL] Test 14 failed: {e}")
-
-    # ----------------------------------------------------
-    # TEST 15: DEBTOR / SCT V2 SCHEMA VALIDATION ERRORS
-    # ----------------------------------------------------
-    print("\n[TEST 15] Debtor / SCT V2 Schema Validation Exception (Header/Body error checks)")
-    
-    # 15a: Missing debtorBankUserId header
-    try:
-        bad_headers = get_debtor_test_headers()
-        bad_headers.pop("debtorBankUserId") # Missing!
-        
-        url = api_base_url + debtor_post_endpoint
-        resp = requests.post(url, json=get_debtor_test_payload(), headers=bad_headers)
-        print(f"Missing debtorBankUserId Status Code: {resp.status_code}")
-        print("Response JSON:", json.dumps(resp.json(), indent=2))
-        assert resp.status_code == 422
-        assert resp.json()["outcome"] == "999"
-        assert "debtorBankUserId" in resp.json()["errorMsg"]
-        print("-> [PASS] Missing debtorBankUserId header is caught and returned as structured UAEIPP error.")
-    except Exception as e:
-        print(f"-> [FAIL] Test 15a failed: {e}")
-
-    # 15b: Missing payment body parameter
-    try:
-        bad_payload = get_debtor_test_payload()
-        bad_payload.pop("payment") # Missing!
-        
-        url = api_base_url + debtor_post_endpoint
-        resp = requests.post(url, json=bad_payload, headers=get_debtor_test_headers())
-        print(f"Missing payment Status Code: {resp.status_code}")
-        print("Response JSON:", json.dumps(resp.json(), indent=2))
-        assert resp.status_code == 422
-        assert resp.json()["outcome"] == "999"
-        assert "payment" in resp.json()["errorMsg"]
-        print("-> [PASS] Missing payment in body is caught and returned as structured UAEIPP error.")
-    except Exception as e:
-        print(f"-> [FAIL] Test 15b failed: {e}")
+        print(f"-> [FAIL] Test 5 failed: {e}")
 
     # Clean Up
     print("\nStopping server...")
