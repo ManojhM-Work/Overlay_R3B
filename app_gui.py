@@ -414,6 +414,7 @@ class SimulatorControlUI:
             "500 - 999 - Internal system error",
             "503 - 009 - Service Temporarily Unavailable",
             "Timeout",
+            "Timeout - Polling",
             "No Response"
         ]
         self.get_resp_menu = ttk.Combobox(card, textvariable=self.get_response_var, values=get_values, state="readonly", width=45)

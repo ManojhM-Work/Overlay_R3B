@@ -16,16 +16,16 @@ def run_tests():
 
     # Initialize configs for test: no delays to speed up test execution
     config.Config.set("server", "api_host", value="127.0.0.1")
-    config.Config.set("server", "api_port", value="8080")
+    config.Config.set("server", "api_port", value="8081")
     config.Config.set("server", "response_delay_seconds", value=0.0)
     config.Config.set("server", "logging_enabled", value=True)
     config.Config.set("server", "random_response_enabled", value=False)
 
-    engine = FastAPIServerEngine("127.0.0.1", 8080)
+    engine = FastAPIServerEngine("127.0.0.1", 8081)
     engine.start()
     time.sleep(1) # wait for uvicorn to initialize
 
-    api_base_url = "http://127.0.0.1:8080"
+    api_base_url = "http://127.0.0.1:8081"
     post_endpoint = "/p2b/payments/verify-reserve-buyer-iban"
     delete_endpoint_tpl = "/payments/reserve/{transactionId}"
 
@@ -223,6 +223,53 @@ def run_tests():
         print("-> [PASS] Invalid body schema is caught and returned as structured UAEIPP error.")
     except Exception as e:
         print(f"-> [FAIL] Test 4b failed: {e}")
+
+    # ----------------------------------------------------
+    # TEST 5: TIMEOUT POLLING FLOW
+    # ----------------------------------------------------
+    print("\n[TEST 5] POST Verify Reserve -> HTTP 202 & GET Polling with Timeouts (Timeout - Polling)")
+    config.Config.set("server", "post_response_mode", value="202 - 000")
+    config.Config.set("server", "get_response_mode", value="Timeout - Polling")
+    config.Config.set("server", "poll_success_count", value=3)
+    config.Config.set("server", "timeout_mode", value="Close Connection") # Use Close Connection to fail fast instead of sleeping 15s
+
+    headers = get_test_headers()
+    payload = get_test_payload()
+    tx_id = payload["transactionId"]
+    merchant_trx_id = payload["merchantTrxId"]
+
+    try:
+        # Step 5a: Send POST request
+        url = api_base_url + post_endpoint
+        resp = requests.post(url, json=payload, headers=headers)
+        print(f"POST Status Code: {resp.status_code}")
+        assert resp.status_code == 202, f"Expected 202, got {resp.status_code}"
+
+        poll_url = f"{api_base_url}{post_endpoint}?transactionId={tx_id}&merchantTrxId={merchant_trx_id}"
+        
+        # Poll 1 (Expect 202)
+        print("Sending Poll 1 (expecting 202)...")
+        resp_poll1 = requests.get(poll_url, headers=headers)
+        print(f"Poll 1 Status: {resp_poll1.status_code}")
+        assert resp_poll1.status_code == 202, f"Expected 202 on poll 1, got {resp_poll1.status_code}"
+
+        # Poll 2 (Expect 202)
+        print("Sending Poll 2 (expecting 202)...")
+        resp_poll2 = requests.get(poll_url, headers=headers)
+        print(f"Poll 2 Status: {resp_poll2.status_code}")
+        assert resp_poll2.status_code == 202, f"Expected 202 on poll 2, got {resp_poll2.status_code}"
+
+        # Poll 3 (Expect timeout/connection closed)
+        print("Sending Poll 3 (expecting timeout/connection closed)...")
+        try:
+            r3 = requests.get(poll_url, headers=headers)
+            print(f"-> [FAIL] Expected connection to be closed/timeout on Poll 3, but got status {r3.status_code}")
+        except requests.exceptions.ConnectionError:
+            print("Poll 3 Status: Connection Closed (Simulated Timeout)")
+
+        print("-> [PASS] Timeout - Polling behaves correctly (202, 202, Timeout).")
+    except Exception as e:
+        print(f"-> [FAIL] Test 5 failed: {e}")
 
     # Clean Up
     print("\nStopping server...")
