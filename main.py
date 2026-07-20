@@ -392,10 +392,9 @@ def select_random_response(endpoint: str) -> str:
             "500 - 999 - Internal system error",
             "503 - 009 - Service Temporarily Unavailable",
             "Timeout",
-            "Timeout - Polling",
             "No Response"
         ]
-        weights = [0.70, 0.15, 0.005, 0.005, 0.005, 0.015, 0.015, 0.015, 0.03, 0.03, 0.015, 0.015, 0.015]
+        weights = [0.70, 0.15, 0.005, 0.005, 0.005, 0.015, 0.015, 0.015, 0.03, 0.03, 0.015, 0.015]
         return random.choices(options, weights=weights, k=1)[0]
     else:  # DELETE
         options = [
@@ -707,28 +706,26 @@ async def get_verify_reserve_buyer_iban(
     thread_id = threading.get_ident()
 
     # Handle Timeouts
-    is_immediate_timeout = response_mode in ("Timeout", "No Response")
-    is_polling_timeout = (response_mode == "Timeout - Polling" and current_poll >= poll_success_count)
-    
-    if is_immediate_timeout or is_polling_timeout:
+    if response_mode in ("Timeout", "No Response"):
         with stats_lock:
             stats["errors"] += 1
         send_traffic_update(
             "/p2b/payments/verify-reserve-buyer-iban", "GET", {"transactionId": transactionId, "merchantTrxId": merchantTrxId}, None, 
             "TIMEOUT", elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
         )
-        effective_response_mode = "Timeout" if response_mode == "Timeout - Polling" else response_mode
-        return await handle_timeout_and_no_response(request, delay, timeout_mode, effective_response_mode)
+        return await handle_timeout_and_no_response(request, delay, timeout_mode, response_mode)
 
-    # Evaluate dynamic success counter for polling-eligible responses
-    polling_eligible_modes = ("200 - 000", "202 - 000", "Timeout - Polling")
-    if current_poll < poll_success_count and response_mode in polling_eligible_modes:
-        # Still processing, return 202 Accepted
-        status_code = 202
-        outcome = "000"
-        error_msg = ""
+    # Evaluate dynamic success counter if selected response mode starts with 200
+    if response_mode.startswith("200"):
+        if current_poll < poll_success_count:
+            status_code = 202
+            outcome = "000"
+            error_msg = ""
+        else:
+            status_code = 200
+            outcome = "000"
+            error_msg = ""
     else:
-        # Poll limit reached, return the configured final response (Success or Failure)
         parts = response_mode.split(" - ")
         status_code = int(parts[0])
         if len(parts) > 1:
