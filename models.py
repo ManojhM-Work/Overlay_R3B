@@ -44,8 +44,8 @@ class VerifyReserveRequest(BaseModel):
     merchant: Merchant
     buyer: Buyer
     requestToPay: Optional[bool] = False
-    merchantTrxId: str
-    transactionType: str
+    merchantTrxId: Optional[str] = None
+    transactionType: Optional[str] = None
 
 class MerchantVerifyReserveRequest(BaseModel):
     transactionId: str
@@ -55,10 +55,10 @@ class MerchantVerifyReserveRequest(BaseModel):
     merchant: Merchant
     buyer: Buyer
     requestToPay: Optional[bool] = False
-    transactionType: str
-    merchantTrxId: str
+    transactionType: Optional[str] = None
+    merchantTrxId: Optional[str] = None
     refMerchantTrxId: Optional[str] = None
-    categoryPurpose: str
+    categoryPurpose: Optional[str] = None
 
 class VerifyReserveResponse(BaseModel):
     outcome: str
@@ -77,10 +77,10 @@ class SCTInitiationRequest(BaseModel):
     merchant: Merchant
     buyer: Buyer
     requestToPay: Optional[bool] = False
-    transactionType: str
+    transactionType: Optional[str] = None
     merchantTrxId: Optional[str] = None
     refMerchantTrxId: Optional[str] = None
-    categoryPurpose: str
+    categoryPurpose: Optional[str] = None
 
 class SCTInitiationResponse(BaseModel):
     outcome: str

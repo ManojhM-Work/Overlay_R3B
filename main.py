@@ -424,7 +424,7 @@ async def handle_timeout_and_no_response(request: Request, delay_sec: float, tim
     logger.info(f"Simulating {details_label} using mode: {timeout_mode}")
     if timeout_mode == "Sleep":
         # Mode 1: Sleep longer than configured delay (simulate sleep timeout)
-        sleep_time = max(delay_sec + 5.0, 15.0)
+        sleep_time = max(delay_sec + 5.0, 10.0)
         await asyncio.sleep(sleep_time)
         return JSONResponse(
             status_code=504, 
@@ -559,8 +559,8 @@ async def verify_reserve_buyer_iban(
 
     req_json = payload.dict(by_alias=True)
     transaction_id = payload.transactionId
-    merchant_trx_id = payload.merchantTrxId
-    trx_type = payload.transactionType
+    merchant_trx_id = payload.merchantTrxId if payload.merchantTrxId else "N/A"
+    trx_type = payload.transactionType if payload.transactionType else "P613"
 
     # Read configuration values
     delay = float(config.Config.get("server", "response_delay_seconds", default=0.0))
@@ -623,19 +623,32 @@ async def verify_reserve_buyer_iban(
     if status_code in (201, 202) and outcome == "000":
         with stats_lock:
             stats["processed"] += 1
-        
-        # Initialize polling counts for GET route
+    else:
+        with stats_lock:
+            stats["errors"] += 1
+
+    # Always record transaction details for GET polling lookup
+    if transaction_id:
         with poll_counter_lock:
-            # Auto-cleanup older records
             if len(poll_counter) > 5000:
                 keys_to_del = list(poll_counter.keys())[:1000]
                 for k in keys_to_del:
                     poll_counter.pop(k, None)
-            poll_counter[transaction_id] = 0
-            
-    else:
-        with stats_lock:
-            stats["errors"] += 1
+            if transaction_id not in poll_counter:
+                poll_counter[transaction_id] = 0
+
+        auth_id = f"authId{random.randint(1000000000, 9999999999)}"
+        with transaction_store_lock:
+            if len(transaction_store) > 5000:
+                keys_to_del = list(transaction_store.keys())[:1000]
+                for k in keys_to_del:
+                    transaction_store.pop(k, None)
+            transaction_store[transaction_id] = {
+                "transactionType": trx_type,
+                "merchantTrxId": merchant_trx_id,
+                "authorisationId": auth_id,
+                "authorizationID": auth_id
+            }
 
     # Periodic logging handles output
 
@@ -744,11 +757,25 @@ async def get_verify_reserve_buyer_iban(
                 outcome = err_info[0]
                 error_msg = err_info[1]
 
+    # Look up transaction metadata
+    trx_type = "P613"
+    resolved_merchant_trx_id = merchantTrxId if merchantTrxId else "N/A"
+    with transaction_store_lock:
+        if transactionId and transactionId in transaction_store:
+            trx_type = transaction_store[transactionId].get("transactionType", "P613")
+            if not merchantTrxId:
+                resolved_merchant_trx_id = transaction_store[transactionId].get("merchantTrxId", "N/A")
+        elif transaction_store:
+            latest_tx = list(transaction_store.values())[-1]
+            trx_type = latest_tx.get("transactionType", "P613")
+            if not merchantTrxId:
+                resolved_merchant_trx_id = latest_tx.get("merchantTrxId", "N/A")
+
     resp_body = {
         "outcome": outcome,
         "errorMsg": error_msg,
-        "transactionType": "P613",
-        "merchantTrxId": merchantTrxId if merchantTrxId else "N/A"
+        "transactionType": trx_type,
+        "merchantTrxId": resolved_merchant_trx_id
     }
 
     if status_code in (200, 202) and outcome == "000":
@@ -786,8 +813,8 @@ async def verify_reserve_merchant_iban(
 
     req_json = payload.dict(by_alias=True)
     transaction_id = payload.transactionId
-    merchant_trx_id = payload.merchantTrxId
-    trx_type = payload.transactionType
+    merchant_trx_id = payload.merchantTrxId if payload.merchantTrxId else "N/A"
+    trx_type = payload.transactionType if payload.transactionType else "P7IN"
 
     # Read configuration values
     delay = float(config.Config.get("server", "response_delay_seconds", default=0.0))
@@ -853,15 +880,22 @@ async def verify_reserve_merchant_iban(
     if status_code in (201, 202) and outcome == "000":
         with stats_lock:
             stats["processed"] += 1
-        
-        # Initialize polling counts and store details for GET route
+    else:
+        with stats_lock:
+            stats["errors"] += 1
+
+    # Always record transaction details for GET polling lookup
+    if transaction_id:
         with poll_counter_lock:
             if len(poll_counter) > 5000:
                 keys_to_del = list(poll_counter.keys())[:1000]
                 for k in keys_to_del:
                     poll_counter.pop(k, None)
-            poll_counter[transaction_id] = 0
-            
+            if transaction_id not in poll_counter:
+                poll_counter[transaction_id] = 0
+
+        if not auth_id:
+            auth_id = f"authId{random.randint(1000000000, 9999999999)}"
         with transaction_store_lock:
             if len(transaction_store) > 5000:
                 keys_to_del = list(transaction_store.keys())[:1000]
@@ -869,11 +903,10 @@ async def verify_reserve_merchant_iban(
                     transaction_store.pop(k, None)
             transaction_store[transaction_id] = {
                 "transactionType": trx_type,
-                "merchantTrxId": merchant_trx_id
+                "merchantTrxId": merchant_trx_id,
+                "authorisationId": auth_id,
+                "authorizationID": auth_id
             }
-    else:
-        with stats_lock:
-            stats["errors"] += 1
 
     send_traffic_update(
         "/p2b/payments/verify-reserve-merchant-iban", "POST", req_json, resp_body, 
@@ -979,10 +1012,15 @@ async def get_verify_reserve_merchant_iban(
     trx_type = "P7IN"
     resolved_merchant_trx_id = merchantTrxId if merchantTrxId else "N/A"
     with transaction_store_lock:
-        if transactionId in transaction_store:
+        if transactionId and transactionId in transaction_store:
             trx_type = transaction_store[transactionId].get("transactionType", "P7IN")
             if not merchantTrxId:
                 resolved_merchant_trx_id = transaction_store[transactionId].get("merchantTrxId", "N/A")
+        elif transaction_store:
+            latest_tx = list(transaction_store.values())[-1]
+            trx_type = latest_tx.get("transactionType", "P7IN")
+            if not merchantTrxId:
+                resolved_merchant_trx_id = latest_tx.get("merchantTrxId", "N/A")
 
     # Generate a random authorization ID if successful
     auth_id = f"authId{random.randint(1000000000, 9999999999)}" if (status_code in (200, 202) and outcome == "000") else None
@@ -1030,8 +1068,8 @@ async def sct_initiation(
 
     req_json = payload.dict(by_alias=True)
     transaction_id = payload.transactionId
-    merchant_trx_id = payload.merchantTrxId
-    trx_type = payload.transactionType
+    merchant_trx_id = payload.merchantTrxId if payload.merchantTrxId else "N/A"
+    trx_type = payload.transactionType if payload.transactionType else "P6IN"
 
     # Read configuration values
     delay = float(config.Config.get("server", "response_delay_seconds", default=0.0))
@@ -1096,15 +1134,20 @@ async def sct_initiation(
     if status_code in (201, 202) and outcome == "000":
         with stats_lock:
             stats["processed"] += 1
-        
-        # Initialize polling counts and store details for GET route
+    else:
+        with stats_lock:
+            stats["errors"] += 1
+
+    # Always record transaction details for GET polling lookup
+    if transaction_id:
         with poll_counter_lock:
             if len(poll_counter) > 5000:
                 keys_to_del = list(poll_counter.keys())[:1000]
                 for k in keys_to_del:
                     poll_counter.pop(k, None)
-            poll_counter[transaction_id] = 0
-            
+            if transaction_id not in poll_counter:
+                poll_counter[transaction_id] = 0
+
         with transaction_store_lock:
             if len(transaction_store) > 5000:
                 keys_to_del = list(transaction_store.keys())[:1000]
@@ -1115,9 +1158,6 @@ async def sct_initiation(
                 "merchantTrxId": merchant_trx_id if merchant_trx_id else "N/A",
                 "trn": trn or f"trn{random.randint(100000000000, 999999999999)}"
             }
-    else:
-        with stats_lock:
-            stats["errors"] += 1
 
     send_traffic_update(
         "/p2b/payments/sct-initiation", "POST", req_json, resp_body, 
@@ -1133,7 +1173,8 @@ async def sct_initiation(
 @app.get("/p2b/payments/sct-initiation")
 async def get_sct_initiation(
     request: Request,
-    transactionId: Optional[str] = None
+    transactionId: Optional[str] = None,
+    merchantTrxId: Optional[str] = None
 ):
     global stats
     start_time = time.perf_counter()
@@ -1188,7 +1229,7 @@ async def get_sct_initiation(
         with stats_lock:
             stats["errors"] += 1
         send_traffic_update(
-            "/p2b/payments/sct-initiation", "GET", {"transactionId": transactionId}, None, 
+            "/p2b/payments/sct-initiation", "GET", {"transactionId": transactionId, "merchantTrxId": merchantTrxId}, None, 
             "TIMEOUT", elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
         )
         return await handle_timeout_and_no_response(request, delay, timeout_mode, response_mode)
@@ -1220,13 +1261,20 @@ async def get_sct_initiation(
 
     # Look up transaction metadata
     trx_type = "P6IN"
-    resolved_merchant_trx_id = "N/A"
+    resolved_merchant_trx_id = merchantTrxId if merchantTrxId else "N/A"
     resolved_trn = None
     with transaction_store_lock:
-        if transactionId in transaction_store:
+        if transactionId and transactionId in transaction_store:
             trx_type = transaction_store[transactionId].get("transactionType", "P6IN")
-            resolved_merchant_trx_id = transaction_store[transactionId].get("merchantTrxId", "N/A")
+            if not merchantTrxId:
+                resolved_merchant_trx_id = transaction_store[transactionId].get("merchantTrxId", "N/A")
             resolved_trn = transaction_store[transactionId].get("trn")
+        elif transaction_store:
+            latest_tx = list(transaction_store.values())[-1]
+            trx_type = latest_tx.get("transactionType", "P6IN")
+            if not merchantTrxId:
+                resolved_merchant_trx_id = latest_tx.get("merchantTrxId", "N/A")
+            resolved_trn = latest_tx.get("trn")
 
     if not resolved_trn and status_code in (200, 202) and outcome == "000":
         resolved_trn = f"trn{random.randint(100000000000, 999999999999)}"
@@ -1248,7 +1296,7 @@ async def get_sct_initiation(
             stats["errors"] += 1
 
     send_traffic_update(
-        "/p2b/payments/sct-initiation", "GET", {"transactionId": transactionId}, resp_body, 
+        "/p2b/payments/sct-initiation", "GET", {"transactionId": transactionId, "merchantTrxId": merchantTrxId}, resp_body, 
         str(status_code), elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
     )
 
@@ -1335,30 +1383,36 @@ async def verify_debtor_account(
     if status_code in (200, 201, 202) and outcome in ("000", "002"):
         with stats_lock:
             stats["processed"] += 1
-        
+    else:
+        with stats_lock:
+            stats["errors"] += 1
+
+    # Always record transaction details for GET polling lookup
+    if transaction_id:
         with poll_counter_lock:
             if len(poll_counter) > 5000:
                 keys_to_del = list(poll_counter.keys())[:1000]
                 for k in keys_to_del:
                     poll_counter.pop(k, None)
-            poll_counter[transaction_id] = 0
-            
+            if transaction_id not in poll_counter:
+                poll_counter[transaction_id] = 0
+
         with transaction_store_lock:
             if len(transaction_store) > 5000:
                 keys_to_del = list(transaction_store.keys())[:1000]
                 for k in keys_to_del:
                     transaction_store.pop(k, None)
+            debtor_info_dict = {}
+            if payload.debtor and payload.debtor.debtorAccount:
+                if payload.debtor.debtorAccount.iban:
+                    debtor_info_dict["iban"] = payload.debtor.debtorAccount.iban
+                if payload.debtor.debtorAccount.accountIdentifier:
+                    debtor_info_dict["accountIdentifier"] = payload.debtor.debtorAccount.accountIdentifier
             transaction_store[transaction_id] = {
                 "transactionType": trx_type,
                 "merchantTrxId": merchant_trx_id if merchant_trx_id else "N/A",
-                "debtorAccount": {
-                    "iban": payload.debtor.debtorAccount.iban,
-                    "accountIdentifier": payload.debtor.debtorAccount.accountIdentifier
-                }
+                "debtorAccount": debtor_info_dict
             }
-    else:
-        with stats_lock:
-            stats["errors"] += 1
 
     send_traffic_update(
         "/payments/verify-debtor-account", "POST", req_json, resp_body, 
@@ -1453,26 +1507,33 @@ async def get_verify_debtor_account(
         outcome = "002"
 
     # Retrieve debtor account metadata
-    debtor_iban = None
-    debtor_acc_id = None
+    debtor_info = {}
     with transaction_store_lock:
-        if transactionId in transaction_store:
+        if transactionId and transactionId in transaction_store:
             debtor_info = transaction_store[transactionId].get("debtorAccount", {})
-            debtor_iban = debtor_info.get("iban")
-            debtor_acc_id = debtor_info.get("accountIdentifier")
+        elif transaction_store:
+            latest_tx = list(transaction_store.values())[-1]
+            debtor_info = latest_tx.get("debtorAccount", {})
 
-    auth_id = f"authId{random.randint(1000000000, 9999999999)}" if (status_code in (200, 202) and outcome in ("000", "002")) else None
+    debtor_iban = debtor_info.get("iban")
+    debtor_acc_id = debtor_info.get("accountIdentifier")
+
+    auth_id = f"authId{random.randint(1000000000, 9999999999)}"
 
     resp_body = {
         "outcome": outcome,
         "errorMsg": error_msg,
     }
-    if auth_id:
+    if status_code in (200, 202):
         resp_body["authorizationID"] = auth_id
-        resp_body["debtorAccount"] = {
-            "iban": debtor_iban,
-            "accountIdentifier": debtor_acc_id
-        }
+        acc_obj = {}
+        if debtor_iban:
+            acc_obj["iban"] = debtor_iban
+        if debtor_acc_id:
+            acc_obj["accountIdentifier"] = debtor_acc_id
+        if not acc_obj:
+            acc_obj["iban"] = "AE2900078115245785609"
+        resp_body["debtorAccount"] = acc_obj
 
     if status_code in (200, 202) and outcome in ("000", "002"):
         with stats_lock:
@@ -1565,14 +1626,20 @@ async def sct_initiation_v2(
     if status_code in (201, 202) and outcome in ("000", "002"):
         with stats_lock:
             stats["processed"] += 1
-        
+    else:
+        with stats_lock:
+            stats["errors"] += 1
+
+    # Always record transaction details for GET polling lookup
+    if transaction_id:
         with poll_counter_lock:
             if len(poll_counter) > 5000:
                 keys_to_del = list(poll_counter.keys())[:1000]
                 for k in keys_to_del:
                     poll_counter.pop(k, None)
-            poll_counter[transaction_id] = 0
-            
+            if transaction_id not in poll_counter:
+                poll_counter[transaction_id] = 0
+
         with transaction_store_lock:
             if len(transaction_store) > 5000:
                 keys_to_del = list(transaction_store.keys())[:1000]
@@ -1583,9 +1650,6 @@ async def sct_initiation_v2(
                 "merchantTrxId": merchant_trx_id if merchant_trx_id else "N/A",
                 "trn": trn or f"trn{random.randint(100000000000, 999999999999)}"
             }
-    else:
-        with stats_lock:
-            stats["errors"] += 1
 
     send_traffic_update(
         "/payments/sct-initiation", "POST", req_json, resp_body, 
@@ -1598,10 +1662,11 @@ async def sct_initiation_v2(
 # ---------------------------------------------------------
 # 2e. GET Poll SCT Initiation V2
 # ---------------------------------------------------------
+@app.get("/payments/sct-initiation")
 @app.get("/payments/sct-initiation/{transactionId}")
 async def get_sct_initiation_v2(
     request: Request,
-    transactionId: str
+    transactionId: Optional[str] = None
 ):
     global stats
     start_time = time.perf_counter()
@@ -1625,16 +1690,17 @@ async def get_sct_initiation_v2(
     response_mode = normalize_get_mode(response_mode)
 
     corr_id = raw_headers.get("x-idempotency-key", "N/A")
-    msg_id = transactionId
+    msg_id = transactionId if transactionId else "N/A"
 
     current_poll = 0
-    with poll_counter_lock:
-        if transactionId in poll_counter:
-            poll_counter[transactionId] += 1
-            current_poll = poll_counter[transactionId]
-        else:
-            poll_counter[transactionId] = 1
-            current_poll = 1
+    if transactionId:
+        with poll_counter_lock:
+            if transactionId in poll_counter:
+                poll_counter[transactionId] += 1
+                current_poll = poll_counter[transactionId]
+            else:
+                poll_counter[transactionId] = 1
+                current_poll = 1
 
     if delay > 0:
         await asyncio.sleep(delay)
@@ -1646,7 +1712,7 @@ async def get_sct_initiation_v2(
         with stats_lock:
             stats["errors"] += 1
         send_traffic_update(
-            f"/payments/sct-initiation/{transactionId}", "GET", None, None, 
+            f"/payments/sct-initiation/{transactionId if transactionId else ''}", "GET", None, None, 
             "TIMEOUT", elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
         )
         return await handle_timeout_and_no_response(request, delay, timeout_mode, response_mode)
@@ -1682,20 +1748,39 @@ async def get_sct_initiation_v2(
     resolved_merchant_trx_id = "N/A"
     resolved_trn = None
     with transaction_store_lock:
-        if transactionId in transaction_store:
+        if transactionId and transactionId in transaction_store:
             trx_type = transaction_store[transactionId].get("transactionType", "P6IN")
             resolved_merchant_trx_id = transaction_store[transactionId].get("merchantTrxId", "N/A")
             resolved_trn = transaction_store[transactionId].get("trn")
+        elif transaction_store:
+            latest_tx = list(transaction_store.values())[-1]
+            trx_type = latest_tx.get("transactionType", "P6IN")
+            resolved_merchant_trx_id = latest_tx.get("merchantTrxId", "N/A")
+            resolved_trn = latest_tx.get("trn")
 
-    if not resolved_trn and status_code in (200, 202) and outcome in ("000", "002"):
+    if not resolved_trn:
         resolved_trn = f"trn{random.randint(100000000000, 999999999999)}"
 
     resp_body = {
         "outcome": outcome,
         "errorMsg": error_msg,
     }
-    if resolved_trn and status_code == 200:
+    if status_code in (200, 201, 202):
         resp_body["TRN"] = resolved_trn
+
+    if status_code in (200, 202) and outcome in ("000", "002"):
+        with stats_lock:
+            stats["processed"] += 1
+    else:
+        with stats_lock:
+            stats["errors"] += 1
+
+    send_traffic_update(
+        f"/payments/sct-initiation/{transactionId if transactionId else ''}", "GET", None, resp_body, 
+        str(status_code), elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
+    )
+
+    return JSONResponse(status_code=status_code, content=resp_body, headers=resp_headers)
 
     if status_code in (200, 202) and outcome in ("000", "002"):
         with stats_lock:
@@ -1716,6 +1801,7 @@ async def get_sct_initiation_v2(
 # 3. DELETE Reserve
 # ---------------------------------------------------------
 
+@app.delete("/p2b/payments/reserve/{transactionId}")
 @app.delete("/payments/reserve/{transactionId}")
 async def delete_reserve(
     request: Request,
@@ -1788,10 +1874,28 @@ async def delete_reserve(
             outcome = err_info[0]
             error_msg = err_info[1]
 
+    # Look up transaction metadata from POST request
+    trx_type = "P613"
+    resolved_merchant_trx_id = "N/A"
+    resolved_auth_id = f"authId{random.randint(1000000000, 9999999999)}"
+
+    with transaction_store_lock:
+        if transactionId and transactionId in transaction_store:
+            trx_type = transaction_store[transactionId].get("transactionType", "P613")
+            resolved_merchant_trx_id = transaction_store[transactionId].get("merchantTrxId", "N/A")
+            resolved_auth_id = transaction_store[transactionId].get("authorisationId", resolved_auth_id)
+        elif transaction_store:
+            latest_tx = list(transaction_store.values())[-1]
+            trx_type = latest_tx.get("transactionType", "P613")
+            resolved_merchant_trx_id = latest_tx.get("merchantTrxId", "N/A")
+            resolved_auth_id = latest_tx.get("authorisationId", resolved_auth_id)
+
     resp_body = {
         "outcome": outcome,
         "errorMsg": error_msg,
-        "transactionId": transactionId
+        "transactionType": trx_type,
+        "merchantTrxId": resolved_merchant_trx_id,
+        "authorisationId": resolved_auth_id
     }
 
     if status_code in (200, 202) and outcome in ("022", "023", "024", "025", "000"):

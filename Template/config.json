@@ -3,14 +3,14 @@
     "api_host": "127.0.0.1",
     "api_port": "8085",
     "response_delay_seconds": 0.0,
-    "post_response_mode": "202",
-    "get_response_mode": "200",
+    "post_response_mode": "202 - 000",
+    "get_response_mode": "Timeout - Polling",
     "delete_response_mode": "200",
     "poll_success_count": 3,
     "retry_count": 3,
     "logging_enabled": true,
     "random_response_enabled": false,
-    "timeout_mode": "Sleep",
+    "timeout_mode": "Close Connection",
     "high_perf": false
   },
   "ui": {
@@ -22,14 +22,14 @@
       "text_color": "#1e293b",
       "text_muted": "#64748b",
       "border_color": "#cbd5e1",
-      "dark_mode": false
+      "dark_mode": true
     }
   },
   "endpoints": {
     "buyer": {
       "response_delay_seconds": 0.0,
       "post_response_mode": "202 - 000",
-      "get_response_mode": "200 - 000",
+      "get_response_mode": "202 - 000",
       "delete_response_mode": "200 - 022",
       "timeout_mode": "Sleep",
       "poll_success_count": 3,
@@ -41,7 +41,7 @@
     "merchant": {
       "response_delay_seconds": 0.0,
       "post_response_mode": "202 - 000",
-      "get_response_mode": "200 - 000",
+      "get_response_mode": "202 - 000",
       "delete_response_mode": "200 - 022",
       "timeout_mode": "Sleep",
       "poll_success_count": 3,
@@ -53,7 +53,7 @@
     "sct_legacy": {
       "response_delay_seconds": 0.0,
       "post_response_mode": "202 - 000",
-      "get_response_mode": "200 - 000",
+      "get_response_mode": "202 - 000",
       "delete_response_mode": "200 - 022",
       "timeout_mode": "Sleep",
       "poll_success_count": 3,
@@ -64,8 +64,8 @@
     },
     "verify_debtor": {
       "response_delay_seconds": 0.0,
-      "post_response_mode": "400 - 005 - Idempotency Key Violation",
-      "get_response_mode": "200 - 000",
+      "post_response_mode": "201 - 000",
+      "get_response_mode": "202 - 000",
       "delete_response_mode": "200 - 022",
       "timeout_mode": "Sleep",
       "poll_success_count": 3,
@@ -76,8 +76,8 @@
     },
     "sct_x2x": {
       "response_delay_seconds": 0.0,
-      "post_response_mode": "500 - 999 - Internal system error",
-      "get_response_mode": "200 - 000",
+      "post_response_mode": "201 - 000",
+      "get_response_mode": "202 - 000",
       "delete_response_mode": "200 - 022",
       "timeout_mode": "Sleep",
       "poll_success_count": 3,

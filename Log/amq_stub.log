@@ -5047,3 +5047,309 @@ Response:          {
 2026-07-20 18:13:21 [INFO] UI Theme updated to Light Mode.
 2026-07-20 18:13:27 [INFO] Switched configuration tab to: VERIFY_DEBTOR
 2026-07-20 18:13:29 [INFO] Switched configuration tab to: BUYER
+2026-07-20 18:28:15 [INFO] UI Theme updated to Dark Mode.
+2026-07-20 18:28:25 [INFO] Initiating background FastAPI server...
+2026-07-20 18:28:25 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-20 18:28:25 [INFO] FastAPI simulator started successfully.
+2026-07-20 18:29:00 [INFO] Simulating Timeout using mode: Sleep
+2026-07-20 18:29:00 [INFO] [2026-07-20T18:29:00.888438] Processed: 3 | Total: 4 | Errors: 1
+2026-07-20 18:29:05 [INFO] [2026-07-20T18:29:05.914520] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-20 18:30:41 [INFO] Stopping FastAPI server...
+2026-07-20 18:30:41 [INFO] FastAPI Server Engine stopping...
+2026-07-20 18:30:42 [INFO] FastAPI Server Engine stopped.
+2026-07-20 18:30:42 [INFO] FastAPI simulator stopped successfully.
+2026-07-20 18:30:42 [INFO] Initiating background FastAPI server...
+2026-07-20 18:30:42 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-20 18:30:42 [INFO] FastAPI simulator started successfully.
+2026-07-20 18:30:51 [INFO] Simulating Timeout using mode: Sleep
+2026-07-20 18:30:52 [INFO] [2026-07-20T18:30:52.917694] Processed: 3 | Total: 4 | Errors: 1
+2026-07-20 18:30:57 [INFO] [2026-07-20T18:30:57.921410] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-20 18:32:04 [INFO] Simulating Timeout using mode: Sleep
+2026-07-20 18:32:08 [INFO] [2026-07-20T18:32:08.008946] Processed: 6 | Total: 8 | Errors: 2
+2026-07-20 18:32:13 [INFO] [2026-07-20T18:32:13.012884] Processed: 6 | Total: 8 | Errors: 2 (Test Stopped/Idle)
+2026-07-21 10:52:01 [INFO] Initiating background FastAPI server...
+2026-07-21 10:52:01 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-21 10:52:01 [INFO] FastAPI simulator started successfully.
+2026-07-21 10:52:15 [INFO] Simulating Timeout using mode: Sleep
+2026-07-21 10:52:16 [INFO] [2026-07-21T10:52:16.267397] Processed: 3 | Total: 4 | Errors: 1
+2026-07-21 10:52:21 [INFO] [2026-07-21T10:52:21.273540] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-21 10:54:03 [INFO] FastAPI Server Engine stopping...
+2026-07-21 10:54:04 [INFO] FastAPI Server Engine stopped.
+2026-07-21 12:20:51 [INFO] [2026-07-21T12:20:51.107500] Processed: 2 | Total: 2 | Errors: 0
+2026-07-21 12:21:48 [INFO] [2026-07-21T12:21:48.335763] Processed: 3 | Total: 3 | Errors: 0
+2026-07-21 12:22:25 [INFO] Simulating Timeout using mode: Sleep
+2026-07-21 12:22:25 [INFO] [2026-07-21T12:22:25.462206] Processed: 3 | Total: 4 | Errors: 1
+2026-07-21 12:22:30 [INFO] [2026-07-21T12:22:30.462848] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-21 14:51:03 [INFO] Initiating background FastAPI server...
+2026-07-21 14:51:03 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-21 14:51:03 [INFO] FastAPI simulator started successfully.
+2026-07-21 14:51:51 [INFO] Simulating Timeout using mode: Sleep
+2026-07-21 14:51:53 [INFO] [2026-07-21T14:51:53.962029] Processed: 3 | Total: 4 | Errors: 1
+2026-07-21 14:51:58 [INFO] [2026-07-21T14:51:58.972661] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-21 15:25:28 [INFO] Stopping FastAPI server...
+2026-07-21 15:25:28 [INFO] FastAPI Server Engine stopping...
+2026-07-21 15:25:28 [INFO] FastAPI Server Engine stopped.
+2026-07-21 15:25:28 [INFO] FastAPI simulator stopped successfully.
+2026-07-21 15:31:27 [INFO] Initiating background FastAPI server...
+2026-07-21 15:31:27 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-21 15:31:27 [INFO] FastAPI simulator started successfully.
+2026-07-21 15:31:34 [INFO] Simulating Timeout using mode: Sleep
+2026-07-21 15:31:37 [INFO] [2026-07-21T15:31:37.280841] Processed: 3 | Total: 4 | Errors: 1
+2026-07-21 15:31:42 [INFO] [2026-07-21T15:31:42.285371] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-21 15:32:31 [INFO] Stopping FastAPI server...
+2026-07-21 15:32:31 [INFO] FastAPI Server Engine stopping...
+2026-07-21 15:32:32 [INFO] FastAPI Server Engine stopped.
+2026-07-21 15:32:32 [INFO] FastAPI simulator stopped successfully.
+2026-07-21 15:32:36 [INFO] Initiating background FastAPI server...
+2026-07-21 15:32:36 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-21 15:32:36 [INFO] FastAPI simulator started successfully.
+2026-07-21 15:32:40 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-21 15:32:41 [INFO] [2026-07-21T15:32:41.409304] Processed: 3 | Total: 4 | Errors: 1
+2026-07-21 15:32:46 [INFO] [2026-07-21T15:32:46.419458] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-21 15:33:33 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-21 15:33:36 [INFO] [2026-07-21T15:33:36.523057] Processed: 3 | Total: 4 | Errors: 1
+2026-07-21 15:33:41 [INFO] [2026-07-21T15:33:41.531538] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-21 15:33:59 [INFO] Stopping FastAPI server...
+2026-07-21 15:33:59 [INFO] FastAPI Server Engine stopping...
+2026-07-21 15:34:00 [INFO] FastAPI Server Engine stopped.
+2026-07-21 15:34:00 [INFO] FastAPI simulator stopped successfully.
+2026-07-21 15:34:03 [INFO] Initiating background FastAPI server...
+2026-07-21 15:34:03 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-21 15:34:03 [INFO] FastAPI simulator started successfully.
+2026-07-21 15:34:06 [INFO] XML payload inspector cleared.
+2026-07-21 15:34:09 [INFO] Simulating Timeout using mode: Never Respond
+2026-07-21 15:34:13 [INFO] [2026-07-21T15:34:13.465346] Processed: 3 | Total: 4 | Errors: 1
+2026-07-21 15:34:18 [INFO] [2026-07-21T15:34:18.476822] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-21 15:35:56 [INFO] Stopping FastAPI server...
+2026-07-21 15:35:56 [INFO] FastAPI Server Engine stopping...
+2026-07-21 15:35:57 [INFO] FastAPI Server Engine stopped.
+2026-07-21 15:35:57 [INFO] FastAPI simulator stopped successfully.
+2026-07-21 15:36:53 [INFO] XML payload inspector cleared.
+2026-07-21 15:37:06 [INFO] Initiating background FastAPI server...
+2026-07-21 15:37:06 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-21 15:37:06 [INFO] FastAPI simulator started successfully.
+2026-07-21 15:37:11 [INFO] Simulating Timeout using mode: Sleep
+2026-07-21 15:37:11 [INFO] [2026-07-21T15:37:11.875520] Processed: 3 | Total: 4 | Errors: 1
+2026-07-21 15:37:13 [INFO] [2026-07-21T15:37:13.812102] Processed: 3 | Total: 4 | Errors: 1
+2026-07-21 15:37:16 [INFO] [2026-07-21T15:37:16.891931] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-21 15:37:18 [INFO] [2026-07-21T15:37:18.919081] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-21 15:38:04 [INFO] FastAPI Server Engine stopping...
+2026-07-21 15:38:04 [INFO] FastAPI Server Engine stopped.
+2026-07-21 15:39:03 [INFO] Initiating background FastAPI server...
+2026-07-21 15:39:03 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-21 15:39:03 [INFO] FastAPI simulator started successfully.
+2026-07-21 15:39:10 [INFO] Simulating Timeout using mode: Sleep
+2026-07-21 15:39:13 [INFO] [2026-07-21T15:39:13.699827] Processed: 3 | Total: 4 | Errors: 1
+2026-07-21 15:39:18 [INFO] [2026-07-21T15:39:18.703620] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-21 15:40:03 [INFO] Simulating Timeout using mode: Sleep
+2026-07-21 15:40:03 [INFO] [2026-07-21T15:40:03.794307] Processed: 6 | Total: 8 | Errors: 2
+2026-07-21 15:40:08 [INFO] [2026-07-21T15:40:08.798055] Processed: 6 | Total: 8 | Errors: 2 (Test Stopped/Idle)
+2026-07-21 15:40:13 [INFO] [2026-07-21T15:40:13.803012] Processed: 7 | Total: 9 | Errors: 2
+2026-07-21 15:40:18 [INFO] [2026-07-21T15:40:18.815322] Processed: 7 | Total: 9 | Errors: 2 (Test Stopped/Idle)
+2026-07-21 15:40:54 [INFO] Stopping FastAPI server...
+2026-07-21 15:40:54 [INFO] FastAPI Server Engine stopping...
+2026-07-21 15:40:54 [INFO] FastAPI Server Engine stopped.
+2026-07-21 15:40:54 [INFO] FastAPI simulator stopped successfully.
+2026-07-21 15:41:03 [INFO] XML payload inspector cleared.
+2026-07-21 15:41:03 [INFO] Real-time transaction tracker cleared.
+2026-07-21 15:41:04 [INFO] XML payload inspector cleared.
+2026-07-21 15:41:08 [INFO] Initiating background FastAPI server...
+2026-07-21 15:41:08 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-21 15:41:08 [INFO] FastAPI simulator started successfully.
+2026-07-21 17:59:47 [INFO] [2026-07-21T17:59:47.337916] Processed: 7 | Total: 9 | Errors: 2
+2026-07-21 17:59:52 [INFO] [2026-07-21T17:59:52.353578] Processed: 7 | Total: 9 | Errors: 2 (Test Stopped/Idle)
+2026-07-21 18:00:40 [INFO] Stopping FastAPI server...
+2026-07-21 18:00:40 [INFO] FastAPI Server Engine stopping...
+2026-07-21 18:00:41 [INFO] FastAPI Server Engine stopped.
+2026-07-21 18:00:41 [INFO] FastAPI simulator stopped successfully.
+2026-07-21 18:00:56 [INFO] Initiating background FastAPI server...
+2026-07-21 18:00:57 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-21 18:00:57 [INFO] FastAPI simulator started successfully.
+2026-07-21 18:01:00 [INFO] XML payload inspector cleared.
+2026-07-21 18:01:07 [INFO] [2026-07-21T18:01:07.030580] Processed: 11 | Total: 11 | Errors: 0
+2026-07-21 18:01:12 [INFO] [2026-07-21T18:01:12.046957] Processed: 11 | Total: 11 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 11:06:43 [INFO] Initiating background FastAPI server...
+2026-07-24 11:06:43 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 11:06:43 [INFO] FastAPI simulator started successfully.
+2026-07-24 11:06:53 [INFO] [2026-07-24T11:06:53.873968] Processed: 11 | Total: 11 | Errors: 0
+2026-07-24 11:06:58 [INFO] [2026-07-24T11:06:58.885044] Processed: 11 | Total: 11 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 11:59:06 [INFO] FastAPI Server Engine started on 127.0.0.1:8081
+2026-07-24 11:59:07 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-24 11:59:07 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-24 11:59:07 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-24 11:59:07 [INFO] FastAPI Server Engine stopping...
+2026-07-24 11:59:08 [INFO] FastAPI Server Engine stopped.
+2026-07-24 12:02:50 [INFO] Initiating background FastAPI server...
+2026-07-24 12:02:50 [INFO] FastAPI Server Engine started on 127.0.0.1:8081
+2026-07-24 12:02:50 [INFO] FastAPI simulator started successfully.
+2026-07-24 12:03:21 [INFO] Stopping FastAPI server...
+2026-07-24 12:03:21 [INFO] FastAPI Server Engine stopping...
+2026-07-24 12:03:22 [INFO] FastAPI Server Engine stopped.
+2026-07-24 12:03:22 [INFO] FastAPI simulator stopped successfully.
+2026-07-24 12:03:29 [INFO] Initiating background FastAPI server...
+2026-07-24 12:03:29 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 12:03:29 [INFO] FastAPI simulator started successfully.
+2026-07-24 12:03:34 [INFO] [2026-07-24T12:03:34.945647] Processed: 3 | Total: 3 | Errors: 0
+2026-07-24 12:03:39 [INFO] [2026-07-24T12:03:39.965701] Processed: 3 | Total: 3 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 12:04:50 [INFO] [2026-07-24T12:04:50.072070] Processed: 5 | Total: 5 | Errors: 0
+2026-07-24 12:04:55 [INFO] [2026-07-24T12:04:55.082070] Processed: 7 | Total: 7 | Errors: 0
+2026-07-24 12:05:00 [INFO] [2026-07-24T12:05:00.093768] Processed: 7 | Total: 7 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 12:05:50 [INFO] [2026-07-24T12:05:50.202689] Processed: 9 | Total: 9 | Errors: 0
+2026-07-24 12:05:55 [INFO] [2026-07-24T12:05:55.210622] Processed: 9 | Total: 9 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 12:06:00 [INFO] [2026-07-24T12:06:00.224921] Processed: 13 | Total: 13 | Errors: 0
+2026-07-24 12:06:05 [INFO] [2026-07-24T12:06:05.229217] Processed: 17 | Total: 17 | Errors: 0
+2026-07-24 12:06:10 [INFO] [2026-07-24T12:06:10.240865] Processed: 17 | Total: 17 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 12:06:35 [INFO] [2026-07-24T12:06:35.278162] Processed: 19 | Total: 19 | Errors: 0
+2026-07-24 12:06:40 [INFO] [2026-07-24T12:06:40.280501] Processed: 19 | Total: 19 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 12:12:42 [INFO] FastAPI Server Engine started on 127.0.0.1:8081
+2026-07-24 12:12:43 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-24 12:12:43 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-24 12:12:43 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-24 12:12:43 [INFO] FastAPI Server Engine stopping...
+2026-07-24 12:12:44 [INFO] FastAPI Server Engine stopped.
+2026-07-24 12:22:11 [INFO] [2026-07-24T12:22:11.864757] Processed: 22 | Total: 22 | Errors: 0
+2026-07-24 12:22:16 [INFO] [2026-07-24T12:22:16.871342] Processed: 22 | Total: 22 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 12:22:22 [INFO] FastAPI Server Engine stopping...
+2026-07-24 12:22:23 [INFO] FastAPI Server Engine stopped.
+2026-07-24 12:22:34 [INFO] Initiating background FastAPI server...
+2026-07-24 12:22:34 [INFO] FastAPI Server Engine started on 127.0.0.1:8081
+2026-07-24 12:22:34 [INFO] FastAPI simulator started successfully.
+2026-07-24 12:22:41 [INFO] Stopping FastAPI server...
+2026-07-24 12:22:41 [INFO] FastAPI Server Engine stopping...
+2026-07-24 12:22:42 [INFO] FastAPI Server Engine stopped.
+2026-07-24 12:22:42 [INFO] FastAPI simulator stopped successfully.
+2026-07-24 12:22:46 [INFO] Initiating background FastAPI server...
+2026-07-24 12:22:46 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 12:22:46 [INFO] FastAPI simulator started successfully.
+2026-07-24 12:22:51 [INFO] [2026-07-24T12:22:51.195936] Processed: 3 | Total: 3 | Errors: 0
+2026-07-24 12:22:56 [INFO] [2026-07-24T12:22:56.206826] Processed: 3 | Total: 3 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 12:24:17 [INFO] Stopping FastAPI server...
+2026-07-24 12:24:17 [INFO] FastAPI Server Engine stopping...
+2026-07-24 12:24:17 [INFO] FastAPI Server Engine stopped.
+2026-07-24 12:24:17 [INFO] FastAPI simulator stopped successfully.
+2026-07-24 12:24:27 [INFO] Initiating background FastAPI server...
+2026-07-24 12:24:27 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 12:24:27 [INFO] FastAPI simulator started successfully.
+2026-07-24 12:24:37 [INFO] Stopping FastAPI server...
+2026-07-24 12:24:37 [INFO] FastAPI Server Engine stopping...
+2026-07-24 12:24:38 [INFO] FastAPI Server Engine stopped.
+2026-07-24 12:24:38 [INFO] FastAPI simulator stopped successfully.
+2026-07-24 12:25:23 [INFO] Initiating background FastAPI server...
+2026-07-24 12:25:23 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 12:25:23 [INFO] FastAPI simulator started successfully.
+2026-07-24 12:25:25 [INFO] Stopping FastAPI server...
+2026-07-24 12:25:25 [INFO] FastAPI Server Engine stopping...
+2026-07-24 12:25:25 [INFO] FastAPI Server Engine stopped.
+2026-07-24 12:25:25 [INFO] FastAPI simulator stopped successfully.
+2026-07-24 12:25:38 [INFO] Initiating background FastAPI server...
+2026-07-24 12:25:38 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 12:25:38 [INFO] FastAPI simulator started successfully.
+2026-07-24 12:25:43 [INFO] [2026-07-24T12:25:43.599706] Processed: 3 | Total: 3 | Errors: 0
+2026-07-24 12:25:48 [INFO] [2026-07-24T12:25:48.617025] Processed: 3 | Total: 3 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 12:28:08 [INFO] [2026-07-24T12:28:08.849648] Processed: 6 | Total: 6 | Errors: 0
+2026-07-24 12:28:13 [INFO] [2026-07-24T12:28:13.856868] Processed: 10 | Total: 10 | Errors: 0
+2026-07-24 12:28:18 [INFO] [2026-07-24T12:28:18.859795] Processed: 10 | Total: 10 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 12:28:28 [INFO] [2026-07-24T12:28:28.868534] Processed: 14 | Total: 14 | Errors: 0
+2026-07-24 12:28:33 [INFO] [2026-07-24T12:28:33.880729] Processed: 14 | Total: 14 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 12:28:53 [INFO] [2026-07-24T12:28:53.914899] Processed: 16 | Total: 16 | Errors: 0
+2026-07-24 12:28:58 [INFO] [2026-07-24T12:28:58.923205] Processed: 16 | Total: 16 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 15:29:21 [INFO] [2026-07-24T15:29:21.413677] Processed: 17 | Total: 17 | Errors: 0
+2026-07-24 15:29:26 [INFO] [2026-07-24T15:29:26.425313] Processed: 17 | Total: 17 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 15:30:26 [INFO] [2026-07-24T15:30:26.530279] Processed: 19 | Total: 19 | Errors: 0
+2026-07-24 15:30:31 [INFO] [2026-07-24T15:30:31.538803] Processed: 19 | Total: 19 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 15:31:01 [INFO] [2026-07-24T15:31:01.601997] Processed: 21 | Total: 21 | Errors: 0
+2026-07-24 15:31:06 [INFO] [2026-07-24T15:31:06.604588] Processed: 21 | Total: 21 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 15:46:58 [INFO] [2026-07-24T15:46:58.230218] Processed: 23 | Total: 23 | Errors: 0
+2026-07-24 15:47:03 [INFO] [2026-07-24T15:47:03.238483] Processed: 23 | Total: 23 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 15:51:53 [INFO] [2026-07-24T15:51:53.682207] Processed: 25 | Total: 25 | Errors: 0
+2026-07-24 15:51:58 [INFO] [2026-07-24T15:51:58.696660] Processed: 25 | Total: 25 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 15:52:08 [INFO] [2026-07-24T15:52:08.722406] Processed: 27 | Total: 27 | Errors: 0
+2026-07-24 15:52:13 [INFO] [2026-07-24T15:52:13.735140] Processed: 27 | Total: 27 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 15:52:23 [INFO] [2026-07-24T15:52:23.758474] Processed: 29 | Total: 29 | Errors: 0
+2026-07-24 15:52:28 [INFO] [2026-07-24T15:52:28.764719] Processed: 29 | Total: 29 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 15:52:33 [INFO] [2026-07-24T15:52:33.775379] Processed: 31 | Total: 31 | Errors: 0
+2026-07-24 15:52:38 [INFO] [2026-07-24T15:52:38.781815] Processed: 31 | Total: 31 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 15:56:54 [INFO] FastAPI Server Engine started on 127.0.0.1:8081
+2026-07-24 15:56:56 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-24 15:56:56 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-24 15:56:56 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-24 15:56:56 [INFO] FastAPI Server Engine stopping...
+2026-07-24 15:56:56 [INFO] FastAPI Server Engine stopped.
+2026-07-24 15:57:35 [INFO] Initiating background FastAPI server...
+2026-07-24 15:57:35 [INFO] FastAPI Server Engine started on 127.0.0.1:8081
+2026-07-24 15:57:35 [INFO] FastAPI simulator started successfully.
+2026-07-24 15:58:00 [INFO] Stopping FastAPI server...
+2026-07-24 15:58:00 [INFO] FastAPI Server Engine stopping...
+2026-07-24 15:58:01 [INFO] FastAPI Server Engine stopped.
+2026-07-24 15:58:01 [INFO] FastAPI simulator stopped successfully.
+2026-07-24 15:58:05 [INFO] Initiating background FastAPI server...
+2026-07-24 15:58:05 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 15:58:05 [INFO] FastAPI simulator started successfully.
+2026-07-24 15:58:10 [INFO] [2026-07-24T15:58:10.640700] Processed: 2 | Total: 2 | Errors: 0
+2026-07-24 15:58:15 [INFO] [2026-07-24T15:58:15.651103] Processed: 2 | Total: 2 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 15:58:26 [INFO] FastAPI Server Engine stopping...
+2026-07-24 15:58:26 [INFO] FastAPI Server Engine stopped.
+2026-07-24 15:58:43 [INFO] Initiating background FastAPI server...
+2026-07-24 15:58:43 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 15:58:43 [INFO] FastAPI simulator started successfully.
+2026-07-24 15:58:53 [INFO] [2026-07-24T15:58:53.365727] Processed: 2 | Total: 2 | Errors: 0
+2026-07-24 15:58:58 [INFO] [2026-07-24T15:58:58.376387] Processed: 2 | Total: 2 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 16:02:13 [INFO] [2026-07-24T16:02:13.687464] Processed: 6 | Total: 6 | Errors: 0
+2026-07-24 16:02:18 [INFO] [2026-07-24T16:02:18.702011] Processed: 6 | Total: 6 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 16:04:55 [INFO] FastAPI Server Engine started on 127.0.0.1:8081
+2026-07-24 16:04:56 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-24 16:04:56 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-24 16:04:57 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-24 16:04:57 [INFO] FastAPI Server Engine stopping...
+2026-07-24 16:04:57 [INFO] FastAPI Server Engine stopped.
+2026-07-24 16:06:34 [INFO] Initiating background FastAPI server...
+2026-07-24 16:06:34 [INFO] FastAPI Server Engine started on 127.0.0.1:8081
+2026-07-24 16:06:34 [INFO] FastAPI simulator started successfully.
+2026-07-24 16:06:36 [INFO] Stopping FastAPI server...
+2026-07-24 16:06:36 [INFO] FastAPI Server Engine stopping...
+2026-07-24 16:06:37 [INFO] FastAPI Server Engine stopped.
+2026-07-24 16:06:37 [INFO] FastAPI simulator stopped successfully.
+2026-07-24 16:06:40 [INFO] Initiating background FastAPI server...
+2026-07-24 16:06:40 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 16:06:40 [INFO] FastAPI simulator started successfully.
+2026-07-24 16:06:45 [INFO] [2026-07-24T16:06:45.741483] Processed: 4 | Total: 4 | Errors: 0
+2026-07-24 16:06:50 [INFO] [2026-07-24T16:06:50.744578] Processed: 4 | Total: 4 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 16:11:52 [INFO] FastAPI Server Engine started on 127.0.0.1:8081
+2026-07-24 16:11:53 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-24 16:11:53 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-24 16:11:53 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-24 16:11:53 [INFO] FastAPI Server Engine stopping...
+2026-07-24 16:11:53 [INFO] FastAPI Server Engine stopped.
+2026-07-24 16:14:56 [INFO] Initiating background FastAPI server...
+2026-07-24 16:14:56 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 16:14:56 [INFO] FastAPI simulator started successfully.
+2026-07-24 16:15:06 [INFO] [2026-07-24T16:15:06.278513] Processed: 4 | Total: 4 | Errors: 0
+2026-07-24 16:15:11 [INFO] [2026-07-24T16:15:11.292434] Processed: 4 | Total: 4 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 16:15:51 [INFO] [2026-07-24T16:15:51.347803] Processed: 8 | Total: 8 | Errors: 0
+2026-07-24 16:15:56 [INFO] [2026-07-24T16:15:56.356240] Processed: 8 | Total: 8 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 16:16:06 [INFO] [2026-07-24T16:16:06.358989] Processed: 12 | Total: 12 | Errors: 0
+2026-07-24 16:16:11 [INFO] [2026-07-24T16:16:11.366887] Processed: 12 | Total: 12 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 16:25:14 [INFO] FastAPI Server Engine started on 127.0.0.1:8081
+2026-07-24 16:25:15 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-24 16:25:15 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-24 16:25:15 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-24 16:25:15 [INFO] FastAPI Server Engine stopping...
+2026-07-24 16:25:16 [INFO] FastAPI Server Engine stopped.
+2026-07-24 16:27:56 [INFO] Initiating background FastAPI server...
+2026-07-24 16:27:56 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 16:27:56 [INFO] FastAPI simulator started successfully.
+2026-07-24 16:28:06 [INFO] [2026-07-24T16:28:06.217448] Processed: 4 | Total: 4 | Errors: 0
+2026-07-24 16:28:11 [INFO] [2026-07-24T16:28:11.228711] Processed: 4 | Total: 4 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 16:28:41 [INFO] [2026-07-24T16:28:41.274035] Processed: 16 | Total: 16 | Errors: 0
+2026-07-24 16:28:46 [INFO] [2026-07-24T16:28:46.286259] Processed: 16 | Total: 16 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 16:34:03 [INFO] FastAPI Server Engine started on 127.0.0.1:8081
+2026-07-24 16:34:04 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-24 16:34:04 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-24 16:34:04 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-24 16:34:04 [INFO] FastAPI Server Engine stopping...
+2026-07-24 16:34:04 [INFO] FastAPI Server Engine stopped.
+2026-07-24 16:35:37 [INFO] Initiating background FastAPI server...
+2026-07-24 16:35:37 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 16:35:37 [INFO] FastAPI simulator started successfully.
+2026-07-24 16:35:47 [INFO] [2026-07-24T16:35:47.507196] Processed: 12 | Total: 12 | Errors: 0
+2026-07-24 16:35:52 [INFO] [2026-07-24T16:35:52.510343] Processed: 12 | Total: 12 | Errors: 0 (Test Stopped/Idle)
