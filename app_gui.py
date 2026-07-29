@@ -9,6 +9,7 @@ from datetime import datetime
 # Import our modular packages
 import main
 import config
+import response_codes_catalog
 from logger_helper import logger
 
 class TkinterConsoleHandler(logging.Handler):
@@ -569,64 +570,19 @@ class SimulatorControlUI:
         # POST Response (Row 2)
         tk.Label(card, text="POST Response", font=("Segoe UI", 9), fg=self.text_color, bg=self.panel_color).grid(row=2, column=0, sticky="w", pady=4)
         self.configure_ttk_styles()
-        post_values = [
-            "201 - 000",
-            "202 - 000",
-            "400 - 001 - Signature calculation failed",
-            "400 - 003 - Invalid Headers",
-            "400 - 004 - Invalid Request Parameter",
-            "400 - 005 - Idempotency Key Violation",
-            "400 - 006 - Decryption failed",
-            "401 - 002 - Invalid client credentials",
-            "409 - 013 - Duplicate transaction ID",
-            "500 - 999 - Internal system error",
-            "503 - 009 - Service Temporarily Unavailable",
-            "Timeout",
-            "No Response"
-        ]
+        post_values = response_codes_catalog.POST_RESPONSE_OPTIONS
         self.post_resp_menu = ttk.Combobox(card, textvariable=self.post_response_var, values=post_values, state="readonly", width=45)
         self.post_resp_menu.grid(row=2, column=1, sticky="w", pady=4)
 
         # GET Response (Row 3)
         tk.Label(card, text="GET Response (Poll)", font=("Segoe UI", 9), fg=self.text_color, bg=self.panel_color).grid(row=3, column=0, sticky="w", pady=4)
-        get_values = [
-            "200 - 000",
-            "202 - 000",
-            "400 - 001 - Signature calculation failed",
-            "400 - 003 - Invalid Headers",
-            "400 - 005 - Idempotency Key Violation",
-            "401 - 002 - Invalid client credentials",
-            "404 - 012 - Transaction not found",
-            "409 - 013 - Duplicate transaction ID",
-            "500 - 999 - Internal system error",
-            "503 - 009 - Service Temporarily Unavailable",
-            "Timeout",
-            "Timeout - Polling",
-            "No Response"
-        ]
+        get_values = response_codes_catalog.GET_RESPONSE_OPTIONS
         self.get_resp_menu = ttk.Combobox(card, textvariable=self.get_response_var, values=get_values, state="readonly", width=45)
         self.get_resp_menu.grid(row=3, column=1, sticky="w", pady=4)
 
         # DELETE Response (Row 4)
         tk.Label(card, text="DELETE Response", font=("Segoe UI", 9), fg=self.text_color, bg=self.panel_color).grid(row=4, column=0, sticky="w", pady=4)
-        delete_values = [
-            "200 - 022",
-            "200 - 024",
-            "202 - 023",
-            "202 - 025",
-            "400 - 001 - Signature calculation failed",
-            "400 - 003 - Invalid Headers",
-            "400 - 004 - Invalid Request Parameter",
-            "400 - 005 - Idempotency Key Violation",
-            "400 - 006 - Decryption failed",
-            "401 - 002 - Invalid client credentials",
-            "404 - 012 - Transaction not found",
-            "409 - 013 - Duplicate transaction ID",
-            "500 - 999 - Internal system error",
-            "503 - 009 - Service Temporarily Unavailable",
-            "Timeout",
-            "No Response"
-        ]
+        delete_values = response_codes_catalog.DELETE_RESPONSE_OPTIONS
         self.delete_resp_menu = ttk.Combobox(card, textvariable=self.delete_response_var, values=delete_values, state="readonly", width=45)
         self.delete_resp_menu.grid(row=4, column=1, sticky="w", pady=4)
 

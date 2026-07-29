@@ -1,9 +1,9 @@
 {
   "server": {
     "api_host": "127.0.0.1",
-    "api_port": "8081",
+    "api_port": "8085",
     "response_delay_seconds": 0.0,
-    "post_response_mode": "202 - 000",
+    "post_response_mode": "503 - 999 - 999",
     "get_response_mode": "Timeout - Polling",
     "delete_response_mode": "200",
     "poll_success_count": 3,
@@ -13,7 +13,7 @@
     "timeout_mode": "Close Connection",
     "high_perf": false,
     "ssl_enabled": true,
-    "ssl_certfile": "",
+    "ssl_certfile": "certs/ApacheJMeterTemporaryRootCA.crt",
     "ssl_keyfile": "",
     "ssl_ca_certs": "",
     "ssl_cert_reqs": 2
@@ -34,7 +34,7 @@
     "buyer": {
       "response_delay_seconds": 0.0,
       "post_response_mode": "202 - 000",
-      "get_response_mode": "Timeout - Polling",
+      "get_response_mode": "200 - 004 - Successful API call . Buyer IBAN Verified funds reserved   for payment",
       "delete_response_mode": "200 - 022",
       "timeout_mode": "Sleep",
       "poll_success_count": 3,

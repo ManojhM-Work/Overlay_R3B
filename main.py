@@ -15,6 +15,7 @@ from fastapi.exceptions import RequestValidationError
 from models import VerifyReserveRequest, VerifyReserveResponse, MerchantVerifyReserveRequest, SCTInitiationRequest, SCTInitiationResponse, VerifyDebtorAccountRequest, VerifyDebtorAccountResponse, SCTInitiationRequestV2
 from logger_helper import logger
 import config
+import response_codes_catalog
 
 # Thread-safe queue to feed dynamic traffic events directly to the Tkinter GUI thread
 _traffic_queue = None
@@ -159,35 +160,17 @@ ERROR_OUTCOMES = {
 def normalize_post_mode(mode: str) -> str:
     if mode == "201": return "201 - 000"
     if mode == "202": return "202 - 000"
-    if mode == "400": return "400 - 001 - Signature calculation failed"
-    if mode == "401": return "401 - 002 - Invalid client credentials"
-    if mode == "404": return "404 - 012 - Transaction not found"
-    if mode == "409": return "409 - 013 - Duplicate transaction ID"
-    if mode == "500": return "500 - 999 - Internal system error"
-    if mode == "503": return "503 - 009 - Service Temporarily Unavailable"
-    return mode
+    return response_codes_catalog.normalize_code(mode, default_fallback="201 - 000")
 
 def normalize_get_mode(mode: str) -> str:
     if mode == "200": return "200 - 000"
     if mode == "202": return "202 - 000"
-    if mode == "400": return "400 - 001 - Signature calculation failed"
-    if mode == "401": return "401 - 002 - Invalid client credentials"
-    if mode == "404": return "404 - 012 - Transaction not found"
-    if mode == "409": return "409 - 013 - Duplicate transaction ID"
-    if mode == "500": return "500 - 999 - Internal system error"
-    if mode == "503": return "503 - 009 - Service Temporarily Unavailable"
-    return mode
+    return response_codes_catalog.normalize_code(mode, default_fallback="200 - 000")
 
 def normalize_delete_mode(mode: str) -> str:
     if mode == "200": return "200 - 022"
     if mode == "202": return "202 - 023"
-    if mode == "400": return "400 - 001 - Signature calculation failed"
-    if mode == "401": return "401 - 002 - Invalid client credentials"
-    if mode == "404": return "404 - 012 - Transaction not found"
-    if mode == "409": return "409 - 013 - Duplicate transaction ID"
-    if mode == "500": return "500 - 999 - Internal system error"
-    if mode == "503": return "503 - 009 - Service Temporarily Unavailable"
-    return mode
+    return response_codes_catalog.normalize_code(mode, default_fallback="200 - 022")
 
 def make_response_headers(request_headers: dict) -> dict:
     def get_str(key, fallback="N/A"):
@@ -362,62 +345,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 def select_random_response(endpoint: str) -> str:
     if endpoint == "POST":
-        options = [
-            "201 - 000",
-            "202 - 000",
-            "400 - 001 - Signature calculation failed",
-            "400 - 003 - Invalid Headers",
-            "400 - 004 - Invalid Request Parameter",
-            "400 - 005 - Idempotency Key Violation",
-            "400 - 006 - Decryption failed",
-            "401 - 002 - Invalid client credentials",
-            "409 - 013 - Duplicate transaction ID",
-            "500 - 999 - Internal system error",
-            "503 - 009 - Service Temporarily Unavailable",
-            "Timeout",
-            "No Response"
-        ]
-        weights = [0.70, 0.15, 0.005, 0.005, 0.005, 0.005, 0.005, 0.015, 0.015, 0.03, 0.03, 0.015, 0.015]
-        return random.choices(options, weights=weights, k=1)[0]
+        options = response_codes_catalog.POST_RESPONSE_OPTIONS
     elif endpoint == "GET":
-        options = [
-            "200 - 000",
-            "202 - 000",
-            "400 - 001 - Signature calculation failed",
-            "400 - 003 - Invalid Headers",
-            "400 - 005 - Idempotency Key Violation",
-            "401 - 002 - Invalid client credentials",
-            "404 - 012 - Transaction not found",
-            "409 - 013 - Duplicate transaction ID",
-            "500 - 999 - Internal system error",
-            "503 - 009 - Service Temporarily Unavailable",
-            "Timeout",
-            "Timeout - Polling",
-            "No Response"
-        ]
-        weights = [0.70, 0.15, 0.005, 0.005, 0.005, 0.015, 0.015, 0.015, 0.03, 0.03, 0.015, 0.015, 0.015]
-        return random.choices(options, weights=weights, k=1)[0]
+        options = response_codes_catalog.GET_RESPONSE_OPTIONS
     else:  # DELETE
-        options = [
-            "200 - 022",
-            "200 - 024",
-            "202 - 023",
-            "202 - 025",
-            "400 - 001 - Signature calculation failed",
-            "400 - 003 - Invalid Headers",
-            "400 - 004 - Invalid Request Parameter",
-            "400 - 005 - Idempotency Key Violation",
-            "400 - 006 - Decryption failed",
-            "401 - 002 - Invalid client credentials",
-            "404 - 012 - Transaction not found",
-            "409 - 013 - Duplicate transaction ID",
-            "500 - 999 - Internal system error",
-            "503 - 009 - Service Temporarily Unavailable",
-            "Timeout",
-            "No Response"
-        ]
-        weights = [0.40, 0.40, 0.025, 0.025, 0.005, 0.005, 0.005, 0.005, 0.005, 0.015, 0.015, 0.015, 0.03, 0.03, 0.015, 0.015]
-        return random.choices(options, weights=weights, k=1)[0]
+        options = response_codes_catalog.DELETE_RESPONSE_OPTIONS
+    return random.choice(options)
 
 
 async def handle_timeout_and_no_response(request: Request, delay_sec: float, timeout_mode: str, details_label: str):

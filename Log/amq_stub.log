@@ -5426,3 +5426,46 @@ Response:          {
 2026-07-28 19:36:12 [INFO] Simulating Timeout using mode: Close Connection
 2026-07-28 19:36:12 [INFO] FastAPI Server Engine stopping...
 2026-07-28 19:36:13 [INFO] FastAPI Server Engine stopped.
+2026-07-29 13:36:46 [INFO] FastAPI Server Engine started on http://127.0.0.1:8081
+2026-07-29 13:36:47 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-29 13:36:47 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-29 13:36:47 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-29 13:36:47 [INFO] FastAPI Server Engine stopping...
+2026-07-29 13:36:48 [INFO] FastAPI Server Engine stopped.
+2026-07-29 13:37:21 [INFO] FastAPI Server Engine started on http://127.0.0.1:8089
+2026-07-29 13:37:22 [ERROR] [TRANS #1] Request schema validation failed: body.amount: Input should be a valid dictionary or object to extract fields from; body.merchant: Field required; body.buyer: Field required
+2026-07-29 13:38:15 [INFO] FastAPI Server Engine started on http://127.0.0.1:8089
+2026-07-29 13:38:20 [INFO] [2026-07-29T13:38:20.632021] Processed: 0 | Total: 170 | Errors: 170
+2026-07-29 13:38:22 [INFO] FastAPI Server Engine stopping...
+2026-07-29 13:38:22 [INFO] FastAPI Server Engine stopped.
+2026-07-29 15:54:03 [INFO] Initiating background FastAPI server...
+2026-07-29 15:54:03 [INFO] FastAPI Server Engine started on http://127.0.0.1:8089
+2026-07-29 15:54:03 [INFO] FastAPI simulator started successfully.
+2026-07-29 15:55:48 [INFO] Stopping FastAPI server...
+2026-07-29 15:55:48 [INFO] FastAPI Server Engine stopping...
+2026-07-29 15:55:49 [INFO] FastAPI Server Engine stopped.
+2026-07-29 15:55:49 [INFO] FastAPI simulator stopped successfully.
+2026-07-29 15:55:54 [INFO] Initiating background FastAPI server...
+2026-07-29 15:55:54 [INFO] FastAPI Server Engine started on http://127.0.0.1:8085
+2026-07-29 15:55:54 [INFO] FastAPI simulator started successfully.
+2026-07-29 15:55:59 [INFO] [2026-07-29T15:55:59.707562] Processed: 1 | Total: 2 | Errors: 1
+2026-07-29 15:56:04 [INFO] [2026-07-29T15:56:04.722260] Processed: 1 | Total: 2 | Errors: 1 (Test Stopped/Idle)
+2026-07-29 16:10:21 [INFO] Stopping FastAPI server...
+2026-07-29 16:10:21 [INFO] FastAPI Server Engine stopping...
+2026-07-29 16:10:22 [INFO] FastAPI Server Engine stopped.
+2026-07-29 16:10:22 [INFO] FastAPI simulator stopped successfully.
+2026-07-29 16:17:35 [INFO] Initiating background FastAPI server...
+2026-07-29 16:17:35 [INFO] SSL/TLS and mTLS configuration applied to Uvicorn server engine.
+2026-07-29 16:17:35 [INFO] FastAPI Server Engine started on https://127.0.0.1:8085
+2026-07-29 16:17:35 [INFO] FastAPI simulator started successfully.
+2026-07-29 16:23:05 [INFO] XML payload inspector cleared.
+2026-07-29 16:23:05 [INFO] Real-time transaction tracker cleared.
+2026-07-29 16:23:06 [INFO] XML payload inspector cleared.
+2026-07-29 16:30:02 [INFO] Stopping FastAPI server...
+2026-07-29 16:30:02 [INFO] FastAPI Server Engine stopping...
+2026-07-29 16:30:02 [INFO] FastAPI Server Engine stopped.
+2026-07-29 16:30:02 [INFO] FastAPI simulator stopped successfully.
+2026-07-29 16:32:13 [INFO] Initiating background FastAPI server...
+2026-07-29 16:32:13 [INFO] SSL/TLS and mTLS configuration applied to Uvicorn server engine.
+2026-07-29 16:32:13 [INFO] FastAPI Server Engine started on https://127.0.0.1:8085
+2026-07-29 16:32:13 [INFO] FastAPI simulator started successfully.
