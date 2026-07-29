@@ -7,6 +7,8 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 import ipaddress
 
+from cryptography.hazmat.primitives.serialization import pkcs12
+
 def generate_self_signed_certs(output_dir="certs"):
     os.makedirs(output_dir, exist_ok=True)
     
@@ -14,6 +16,7 @@ def generate_self_signed_certs(output_dir="certs"):
     server_crt_path = os.path.join(output_dir, "server.crt")
     client_key_path = os.path.join(output_dir, "client.key")
     client_crt_path = os.path.join(output_dir, "client_ca.crt")
+    client_p12_path = os.path.join(output_dir, "client.p12")
 
     # 1. Generate Server Private Key & Certificate
     if not (os.path.exists(server_key_path) and os.path.exists(server_crt_path)):
@@ -79,5 +82,25 @@ def generate_self_signed_certs(output_dir="certs"):
             f.write(client_cert.public_bytes(serialization.Encoding.PEM))
         print(f"Created: {client_crt_path}, {client_key_path}")
 
+    # 3. Generate PKCS12 (.p12) KeyStore for JMeter
+    if os.path.exists(client_key_path) and os.path.exists(client_crt_path) and not os.path.exists(client_p12_path):
+        print("Generating Client PKCS12 Keystore (client.p12) for JMeter...")
+        with open(client_key_path, "rb") as f:
+            c_key = serialization.load_pem_private_key(f.read(), password=None)
+        with open(client_crt_path, "rb") as f:
+            c_cert = x509.load_pem_x509_certificate(f.read())
+
+        p12_data = pkcs12.serialize_key_and_certificates(
+            name=b"jmeter-client",
+            key=c_key,
+            cert=c_cert,
+            cas=None,
+            encryption_algorithm=serialization.BestAvailableEncryption(b"password123")
+        )
+        with open(client_p12_path, "wb") as f:
+            f.write(p12_data)
+        print(f"Created: {client_p12_path} (password: password123)")
+
 if __name__ == "__main__":
     generate_self_signed_certs()
+

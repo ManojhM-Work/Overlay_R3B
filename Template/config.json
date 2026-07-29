@@ -10,13 +10,13 @@
     "retry_count": 3,
     "logging_enabled": true,
     "random_response_enabled": false,
-    "timeout_mode": "Close Connection",
+    "timeout_mode": "Sleep",
     "high_perf": false,
     "ssl_enabled": true,
-    "ssl_certfile": "certs/ApacheJMeterTemporaryRootCA.crt",
-    "ssl_keyfile": "",
-    "ssl_ca_certs": "",
-    "ssl_cert_reqs": 2
+    "ssl_certfile": "certs/server.crt",
+    "ssl_keyfile": "certs/server.key",
+    "ssl_ca_certs": "certs/ApacheJMeterTemporaryRootCA.crt",
+    "ssl_cert_reqs": 0
   },
   "ui": {
     "title": "UAEIPP Buyer Participant Simulator",
