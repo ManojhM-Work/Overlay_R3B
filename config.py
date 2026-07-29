@@ -25,7 +25,7 @@ class Config:
                 "server": {
                     "api_host": "127.0.0.1",
                     "api_port": "8080",
-                    "response_delay_seconds": 2.0,
+                    "response_delay_seconds": 1.0,
                     "post_response_mode": "201 - 000",
                     "get_response_mode": "200 - 000",
                     "delete_response_mode": "200 - 022",
@@ -34,7 +34,12 @@ class Config:
                     "logging_enabled": True,
                     "random_response_enabled": False,
                     "timeout_mode": "Sleep",
-                    "high_perf": False
+                    "high_perf": False,
+                    "ssl_enabled": False,
+                    "ssl_certfile": "",
+                    "ssl_keyfile": "",
+                    "ssl_ca_certs": "",
+                    "ssl_cert_reqs": 2
                 },
                 "ui": {
                     "title": "UAEIPP Buyer Participant Simulator",

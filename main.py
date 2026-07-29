@@ -1923,14 +1923,33 @@ class FastAPIServerEngine:
         self.thread = None
 
     def start(self):
+        ssl_enabled = config.Config.get("server", "ssl_enabled", default=False)
+        ssl_kwargs = {}
+        if ssl_enabled:
+            ssl_certfile = config.Config.get("server", "ssl_certfile", default="")
+            ssl_keyfile = config.Config.get("server", "ssl_keyfile", default="")
+            ssl_ca_certs = config.Config.get("server", "ssl_ca_certs", default="")
+            ssl_cert_reqs = config.Config.get("server", "ssl_cert_reqs", default=2)
+
+            if ssl_certfile and os.path.exists(ssl_certfile):
+                ssl_kwargs["ssl_certfile"] = ssl_certfile
+            if ssl_keyfile and os.path.exists(ssl_keyfile):
+                ssl_kwargs["ssl_keyfile"] = ssl_keyfile
+            if ssl_ca_certs and os.path.exists(ssl_ca_certs):
+                ssl_kwargs["ssl_ca_certs"] = ssl_ca_certs
+                ssl_kwargs["ssl_cert_reqs"] = int(ssl_cert_reqs)
+
+            logger.info("SSL/TLS and mTLS configuration applied to Uvicorn server engine.")
+
         # Allow reusing address for quick restarts during testing
-        config_obj = uvicorn.Config(app, host=self.host, port=self.port, log_level="warning", loop="asyncio")
+        config_obj = uvicorn.Config(app, host=self.host, port=self.port, log_level="warning", loop="asyncio", **ssl_kwargs)
         self.server = uvicorn.Server(config_obj)
         
         # Run the server in a separate thread
         self.thread = threading.Thread(target=self.server.run, daemon=True)
         self.thread.start()
-        logger.info(f"FastAPI Server Engine started on {self.host}:{self.port}")
+        protocol = "https" if ssl_enabled else "http"
+        logger.info(f"FastAPI Server Engine started on {protocol}://{self.host}:{self.port}")
 
     def stop(self):
         if self.server:

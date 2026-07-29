@@ -1,7 +1,7 @@
 {
   "server": {
     "api_host": "127.0.0.1",
-    "api_port": "8085",
+    "api_port": "8081",
     "response_delay_seconds": 0.0,
     "post_response_mode": "202 - 000",
     "get_response_mode": "Timeout - Polling",
@@ -11,7 +11,12 @@
     "logging_enabled": true,
     "random_response_enabled": false,
     "timeout_mode": "Close Connection",
-    "high_perf": false
+    "high_perf": false,
+    "ssl_enabled": true,
+    "ssl_certfile": "",
+    "ssl_keyfile": "",
+    "ssl_ca_certs": "",
+    "ssl_cert_reqs": 2
   },
   "ui": {
     "title": "UAEIPP Buyer Participant Simulator",
@@ -29,7 +34,7 @@
     "buyer": {
       "response_delay_seconds": 0.0,
       "post_response_mode": "202 - 000",
-      "get_response_mode": "202 - 000",
+      "get_response_mode": "Timeout - Polling",
       "delete_response_mode": "200 - 022",
       "timeout_mode": "Sleep",
       "poll_success_count": 3,

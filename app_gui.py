@@ -3,7 +3,7 @@ import os
 import queue
 import logging
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 from datetime import datetime
 
 # Import our modular packages
@@ -393,11 +393,57 @@ class SimulatorControlUI:
         else:
             self.dark_mode_var.set(dm_val)
 
+        # SSL / mTLS Settings
+        ssl_enabled_val = config.Config.get("server", "ssl_enabled", default=False)
+        self.ssl_enabled_var = getattr(self, "ssl_enabled_var", None)
+        if self.ssl_enabled_var is None:
+            self.ssl_enabled_var = tk.BooleanVar(value=ssl_enabled_val)
+        else:
+            self.ssl_enabled_var.set(ssl_enabled_val)
+
+        ssl_cert_val = config.Config.get("server", "ssl_certfile", default="")
+        self.ssl_cert_var = getattr(self, "ssl_cert_var", None)
+        if self.ssl_cert_var is None:
+            self.ssl_cert_var = tk.StringVar(value=ssl_cert_val)
+        else:
+            self.ssl_cert_var.set(ssl_cert_val)
+
+        ssl_key_val = config.Config.get("server", "ssl_keyfile", default="")
+        self.ssl_key_var = getattr(self, "ssl_key_var", None)
+        if self.ssl_key_var is None:
+            self.ssl_key_var = tk.StringVar(value=ssl_key_val)
+        else:
+            self.ssl_key_var.set(ssl_key_val)
+
+        ssl_ca_val = config.Config.get("server", "ssl_ca_certs", default="")
+        self.ssl_ca_var = getattr(self, "ssl_ca_var", None)
+        if self.ssl_ca_var is None:
+            self.ssl_ca_var = tk.StringVar(value=ssl_ca_val)
+        else:
+            self.ssl_ca_var.set(ssl_ca_val)
+
+        ssl_reqs_val = str(config.Config.get("server", "ssl_cert_reqs", default=2))
+        self.ssl_cert_reqs_var = getattr(self, "ssl_cert_reqs_var", None)
+        if self.ssl_cert_reqs_var is None:
+            self.ssl_cert_reqs_var = tk.StringVar(value=ssl_reqs_val)
+        else:
+            self.ssl_cert_reqs_var.set(ssl_reqs_val)
+
     def save_settings(self):
         e_key = getattr(self, "current_api_key", "buyer")
         
         config.Config.set("server", "api_host", value=self.host_var.get())
         config.Config.set("server", "api_port", value=self.port_var.get())
+        
+        config.Config.set("server", "ssl_enabled", value=self.ssl_enabled_var.get())
+        config.Config.set("server", "ssl_certfile", value=self.ssl_cert_var.get())
+        config.Config.set("server", "ssl_keyfile", value=self.ssl_key_var.get())
+        config.Config.set("server", "ssl_ca_certs", value=self.ssl_ca_var.get())
+        try:
+            reqs_val = int(self.ssl_cert_reqs_var.get())
+        except ValueError:
+            reqs_val = 2
+        config.Config.set("server", "ssl_cert_reqs", value=reqs_val)
         
         delay_val = float(self.delay_var.get()) if self.delay_var.get().replace('.','',1).isdigit() else 0.0
         config.Config.set("endpoints", e_key, "response_delay_seconds", value=delay_val)
@@ -417,6 +463,24 @@ class SimulatorControlUI:
         config.Config.set("endpoints", e_key, "high_perf", value=self.high_perf_var.get())
         
         config.Config.set("ui", "theme", "dark_mode", value=self.dark_mode_var.get())
+
+    def browse_cert_file(self):
+        filename = filedialog.askopenfilename(title="Select Server Certificate File", filetypes=[("Certificate Files", "*.crt *.pem *.cer"), ("All Files", "*.*")])
+        if filename:
+            self.ssl_cert_var.set(filename)
+            self.save_settings()
+
+    def browse_key_file(self):
+        filename = filedialog.askopenfilename(title="Select Server Private Key File", filetypes=[("Key Files", "*.key *.pem"), ("All Files", "*.*")])
+        if filename:
+            self.ssl_key_var.set(filename)
+            self.save_settings()
+
+    def browse_ca_file(self):
+        filename = filedialog.askopenfilename(title="Select Client CA Certificate File", filetypes=[("Certificate Files", "*.crt *.pem *.cer"), ("All Files", "*.*")])
+        if filename:
+            self.ssl_ca_var.set(filename)
+            self.save_settings()
 
     def create_header(self):
         self.header_frame = tk.Frame(self.root, bg=self.bg_color, pady=10, padx=20)
@@ -604,12 +668,34 @@ class SimulatorControlUI:
         self.perf_chk = ToggleSwitch(opts_frame, variable=self.high_perf_var, command=self.save_settings)
         self.perf_chk.pack(side="left")
         self.perf_lbl = tk.Label(opts_frame, text="Hi-Perf", font=("Segoe UI", 8, "bold"), fg=self.text_color, bg=self.panel_color)
-        self.perf_lbl.pack(side="left", padx=(5, 0))
+        self.perf_lbl.pack(side="left", padx=(5, 10))
 
-        # UI display toggles for grid and inspector panels (Row 9)
-        tk.Label(card, text="Display Panels", font=("Segoe UI", 9), fg=self.text_color, bg=self.panel_color).grid(row=9, column=0, sticky="w", pady=6)
+        self.ssl_chk = ToggleSwitch(opts_frame, variable=self.ssl_enabled_var, command=self.save_settings)
+        self.ssl_chk.pack(side="left")
+        self.ssl_lbl = tk.Label(opts_frame, text="HTTPS/mTLS", font=("Segoe UI", 8, "bold"), fg=self.text_color, bg=self.panel_color)
+        self.ssl_lbl.pack(side="left", padx=(5, 0))
+
+        # SSL Certificates Panel (Row 9)
+        tk.Label(card, text="Server Cert / Key", font=("Segoe UI", 9), fg=self.text_color, bg=self.panel_color).grid(row=9, column=0, sticky="w", pady=4)
+        cert_frame = tk.Frame(card, bg=self.panel_color)
+        cert_frame.grid(row=9, column=1, sticky="w", pady=4)
+        self.cert_entry = tk.Entry(cert_frame, textvariable=self.ssl_cert_var, width=28, **entry_style)
+        self.cert_entry.pack(side="left", ipady=1, padx=(0, 2))
+        tk.Button(cert_frame, text="Cert", font=("Segoe UI", 7, "bold"), command=self.browse_cert_file, bg=self.accent_color, fg="#ffffff", bd=0, padx=6, pady=2, cursor="hand2").pack(side="left", padx=2)
+        tk.Button(cert_frame, text="Key", font=("Segoe UI", 7, "bold"), command=self.browse_key_file, bg=self.accent_color, fg="#ffffff", bd=0, padx=6, pady=2, cursor="hand2").pack(side="left", padx=2)
+
+        # Client CA (mTLS) Panel (Row 10)
+        tk.Label(card, text="Client CA (mTLS)", font=("Segoe UI", 9), fg=self.text_color, bg=self.panel_color).grid(row=10, column=0, sticky="w", pady=4)
+        ca_frame = tk.Frame(card, bg=self.panel_color)
+        ca_frame.grid(row=10, column=1, sticky="w", pady=4)
+        self.ca_entry = tk.Entry(ca_frame, textvariable=self.ssl_ca_var, width=28, **entry_style)
+        self.ca_entry.pack(side="left", ipady=1, padx=(0, 2))
+        tk.Button(ca_frame, text="Client CA", font=("Segoe UI", 7, "bold"), command=self.browse_ca_file, bg=self.accent_color, fg="#ffffff", bd=0, padx=6, pady=2, cursor="hand2").pack(side="left", padx=2)
+
+        # UI display toggles for grid and inspector panels (Row 11)
+        tk.Label(card, text="Display Panels", font=("Segoe UI", 9), fg=self.text_color, bg=self.panel_color).grid(row=11, column=0, sticky="w", pady=6)
         toggles_frame = tk.Frame(card, bg=self.panel_color)
-        toggles_frame.grid(row=9, column=1, sticky="w", pady=6)
+        toggles_frame.grid(row=11, column=1, sticky="w", pady=6)
         
         self.show_tracker_var = tk.BooleanVar(value=True)
         self.show_inspector_var = tk.BooleanVar(value=True)

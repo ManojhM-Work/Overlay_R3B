@@ -18,6 +18,7 @@ def run_tests():
     # Initialize configs for test: no delays to speed up test execution
     config.Config.set("server", "api_host", value="127.0.0.1")
     config.Config.set("server", "api_port", value="8081")
+    config.Config.set("server", "ssl_enabled", value=False)
     config.Config.set("server", "response_delay_seconds", value=0.0)
     config.Config.set("server", "logging_enabled", value=True)
     config.Config.set("server", "random_response_enabled", value=False)

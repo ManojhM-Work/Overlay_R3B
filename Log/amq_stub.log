@@ -5353,3 +5353,76 @@ Response:          {
 2026-07-24 16:35:37 [INFO] FastAPI simulator started successfully.
 2026-07-24 16:35:47 [INFO] [2026-07-24T16:35:47.507196] Processed: 12 | Total: 12 | Errors: 0
 2026-07-24 16:35:52 [INFO] [2026-07-24T16:35:52.510343] Processed: 12 | Total: 12 | Errors: 0 (Test Stopped/Idle)
+2026-07-24 16:37:32 [INFO] [2026-07-24T16:37:32.652147] Processed: 795 | Total: 795 | Errors: 0
+2026-07-24 16:37:37 [INFO] [2026-07-24T16:37:37.665321] Processed: 866 | Total: 866 | Errors: 0
+2026-07-24 16:37:40 [INFO] Stopping FastAPI server...
+2026-07-24 16:37:40 [INFO] FastAPI Server Engine stopping...
+2026-07-24 16:37:40 [INFO] FastAPI Server Engine stopped.
+2026-07-24 16:37:40 [INFO] FastAPI simulator stopped successfully.
+2026-07-24 16:37:44 [INFO] Initiating background FastAPI server...
+2026-07-24 16:37:44 [INFO] FastAPI Server Engine started on 127.0.0.1:8085
+2026-07-24 16:37:45 [INFO] FastAPI simulator started successfully.
+2026-07-24 16:37:48 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:37:50 [INFO] [2026-07-24T16:37:50.015541] Processed: 3 | Total: 4 | Errors: 1
+2026-07-24 16:37:55 [INFO] [2026-07-24T16:37:55.031479] Processed: 3 | Total: 4 | Errors: 1 (Test Stopped/Idle)
+2026-07-24 16:38:00 [INFO] [2026-07-24T16:38:00.045034] Processed: 4 | Total: 5 | Errors: 1
+2026-07-24 16:38:05 [INFO] [2026-07-24T16:38:05.047871] Processed: 4 | Total: 5 | Errors: 1 (Test Stopped/Idle)
+2026-07-24 16:39:53 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:39:55 [INFO] [2026-07-24T16:39:55.198453] Processed: 7 | Total: 9 | Errors: 2
+2026-07-24 16:40:00 [INFO] [2026-07-24T16:40:00.212095] Processed: 7 | Total: 9 | Errors: 2 (Test Stopped/Idle)
+2026-07-24 16:40:05 [INFO] [2026-07-24T16:40:05.215642] Processed: 8 | Total: 10 | Errors: 2
+2026-07-24 16:40:10 [INFO] [2026-07-24T16:40:10.221637] Processed: 8 | Total: 10 | Errors: 2 (Test Stopped/Idle)
+2026-07-24 16:40:14 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:14 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:15 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:15 [INFO] [2026-07-24T16:40:15.226224] Processed: 17 | Total: 22 | Errors: 5
+2026-07-24 16:40:15 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:15 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:20 [INFO] [2026-07-24T16:40:20.237946] Processed: 23 | Total: 30 | Errors: 7
+2026-07-24 16:40:24 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:24 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:25 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:25 [INFO] [2026-07-24T16:40:25.249607] Processed: 35 | Total: 45 | Errors: 10
+2026-07-24 16:40:25 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:25 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:30 [INFO] [2026-07-24T16:40:30.258258] Processed: 43 | Total: 55 | Errors: 12
+2026-07-24 16:40:34 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:34 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:35 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:35 [INFO] [2026-07-24T16:40:35.264605] Processed: 55 | Total: 70 | Errors: 15
+2026-07-24 16:40:35 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:35 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:40 [INFO] [2026-07-24T16:40:40.275551] Processed: 63 | Total: 80 | Errors: 17
+2026-07-24 16:40:44 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:44 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:45 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:45 [INFO] [2026-07-24T16:40:45.279996] Processed: 75 | Total: 95 | Errors: 20
+2026-07-24 16:40:45 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:45 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:50 [INFO] [2026-07-24T16:40:50.290392] Processed: 83 | Total: 105 | Errors: 22
+2026-07-24 16:40:54 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:54 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:55 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:55 [INFO] [2026-07-24T16:40:55.295537] Processed: 95 | Total: 120 | Errors: 25
+2026-07-24 16:40:55 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:40:55 [INFO] Simulating Timeout using mode: Sleep
+2026-07-24 16:41:00 [INFO] [2026-07-24T16:41:00.311927] Processed: 103 | Total: 130 | Errors: 27
+2026-07-24 16:41:05 [INFO] [2026-07-24T16:41:05.323791] Processed: 106 | Total: 133 | Errors: 27
+2026-07-24 16:41:10 [INFO] [2026-07-24T16:41:10.340037] Processed: 108 | Total: 135 | Errors: 27
+2026-07-24 16:41:15 [INFO] [2026-07-24T16:41:15.348920] Processed: 108 | Total: 135 | Errors: 27 (Test Stopped/Idle)
+2026-07-24 16:50:00 [INFO] Stopping FastAPI server...
+2026-07-24 16:50:00 [INFO] FastAPI Server Engine stopping...
+2026-07-24 16:50:00 [INFO] FastAPI Server Engine stopped.
+2026-07-24 16:50:00 [INFO] FastAPI simulator stopped successfully.
+2026-07-28 19:35:09 [INFO] FastAPI Server Engine started on http://127.0.0.1:8081
+2026-07-28 19:35:10 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-28 19:35:10 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-28 19:35:10 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-28 19:35:10 [INFO] FastAPI Server Engine stopping...
+2026-07-28 19:35:11 [INFO] FastAPI Server Engine stopped.
+2026-07-28 19:36:11 [INFO] FastAPI Server Engine started on http://127.0.0.1:8081
+2026-07-28 19:36:12 [ERROR] [TRANS #8] Request schema validation failed: header.x-idempotency-key: Field required
+2026-07-28 19:36:12 [ERROR] [TRANS #9] Request schema validation failed: body.amount: Field required
+2026-07-28 19:36:12 [INFO] Simulating Timeout using mode: Close Connection
+2026-07-28 19:36:12 [INFO] FastAPI Server Engine stopping...
+2026-07-28 19:36:13 [INFO] FastAPI Server Engine stopped.
