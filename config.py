@@ -42,7 +42,7 @@ class Config:
                     "ssl_cert_reqs": 2
                 },
                 "ui": {
-                    "title": "UAEIPP Buyer Participant Simulator",
+                    "title": "Expleo BE Simulator",
                     "theme": {
                         "bg_color": "#f1f5f9",
                         "panel_color": "#ffffff",

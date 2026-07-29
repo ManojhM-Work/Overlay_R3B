@@ -488,7 +488,7 @@ class SimulatorControlUI:
         self.header_frame.pack(fill="x")
         
         # Left Title
-        self.title_lbl = tk.Label(self.header_frame, text="UAEIPP Buyer Participant Simulator", font=("Segoe UI", 16, "bold"), fg=self.accent_color, bg=self.bg_color)
+        self.title_lbl = tk.Label(self.header_frame, text="Expleo BE Simulator", font=("Segoe UI", 16, "bold"), fg=self.accent_color, bg=self.bg_color)
         self.title_lbl.pack(side="left")
         
         # Right Status and Counters

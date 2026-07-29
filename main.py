@@ -11,6 +11,8 @@ import uvicorn
 from fastapi import FastAPI, Header, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.staticfiles import StaticFiles
 
 from models import VerifyReserveRequest, VerifyReserveResponse, MerchantVerifyReserveRequest, SCTInitiationRequest, SCTInitiationResponse, VerifyDebtorAccountRequest, VerifyDebtorAccountResponse, SCTInitiationRequestV2
 from logger_helper import logger
@@ -68,10 +70,33 @@ def add_history_record(record):
 
 # FastAPI App
 app = FastAPI(
-    title="UAEIPP Buyer Participant Simulator",
-    description="A high-performance FastAPI simulator for the UAEIPP Verify Reserve phase.",
-    version="1.0.0"
+    title="Expleo BE Simulator",
+    description="A high-performance FastAPI simulator for the BE Simulator By Expleo PT Team.",
+    version="1.0.0",
+    docs_url=None,
+    redoc_url=None
 )
+
+static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    if os.path.exists(os.path.join(static_dir, "swagger-ui-bundle.js")):
+        js_url = "/static/swagger-ui-bundle.js"
+        css_url = "/static/swagger-ui.css"
+    else:
+        js_url = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.9.0/swagger-ui-bundle.min.js"
+        css_url = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.9.0/swagger-ui.min.css"
+
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=app.title + " - Swagger UI",
+        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+        swagger_js_url=js_url,
+        swagger_css_url=css_url,
+    )
 
 @app.middleware("http")
 async def endpoint_context_middleware(request: Request, call_next):
