@@ -15,8 +15,8 @@
     "ssl_enabled": true,
     "ssl_certfile": "certs/server.crt",
     "ssl_keyfile": "certs/server.key",
-    "ssl_ca_certs": "certs/ApacheJMeterTemporaryRootCA.crt",
-    "ssl_cert_reqs": 0
+    "ssl_ca_certs": "certs/client_ca.crt",
+    "ssl_cert_reqs": 2
   },
   "ui": {
     "title": "Expleo BE Simulator",

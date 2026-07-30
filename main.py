@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Optional, Any
 import uvicorn
 from fastapi import FastAPI, Header, HTTPException, Request, Depends
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.staticfiles import StaticFiles
@@ -90,13 +90,23 @@ async def custom_swagger_ui_html():
         js_url = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.9.0/swagger-ui-bundle.min.js"
         css_url = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.9.0/swagger-ui.min.css"
 
+    favicon_url = "/static/app_icon.png" if os.path.exists(os.path.join(static_dir, "app_icon.png")) else "/favicon.ico"
+
     return get_swagger_ui_html(
         openapi_url=app.openapi_url,
         title=app.title + " - Swagger UI",
         oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
         swagger_js_url=js_url,
         swagger_css_url=css_url,
+        swagger_favicon_url=favicon_url,
     )
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Template", "app_icon.png")
+    if os.path.exists(icon_path):
+        return FileResponse(icon_path, media_type="image/png")
+    return JSONResponse({"detail": "Not found"}, status_code=404)
 
 @app.middleware("http")
 async def endpoint_context_middleware(request: Request, call_next):
