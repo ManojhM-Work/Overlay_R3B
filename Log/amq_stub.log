@@ -5724,3 +5724,14 @@ Response:          {
 2026-08-03 17:40:39 [INFO] SSL/TLS and mTLS configuration applied to Uvicorn server engine.
 2026-08-03 17:40:40 [INFO] FastAPI Server Engine started on https://127.0.0.1:8085
 2026-08-03 17:40:40 [INFO] FastAPI simulator started successfully.
+2026-08-03 17:40:55 [INFO] [2026-08-03T17:40:55.389993] Processed: 1 | Total: 1 | Errors: 0
+2026-08-03 17:41:00 [INFO] [2026-08-03T17:41:00.456800] Processed: 1 | Total: 1 | Errors: 0 (Test Stopped/Idle)
+2026-08-03 17:41:50 [INFO] XML payload inspector cleared.
+2026-08-03 17:41:52 [INFO] XML payload inspector cleared.
+2026-08-03 17:41:52 [INFO] Real-time transaction tracker cleared.
+2026-08-03 18:12:05 [INFO] [2026-08-03T18:12:05.316489] Processed: 1 | Total: 1 | Errors: 0
+2026-08-03 18:12:10 [INFO] [2026-08-03T18:12:10.869441] Processed: 11 | Total: 12 | Errors: 1
+2026-08-03 18:12:15 [INFO] [2026-08-03T18:12:15.921576] Processed: 11 | Total: 12 | Errors: 1 (Test Stopped/Idle)
+2026-08-03 18:16:06 [INFO] [2026-08-03T18:16:06.595469] Processed: 21 | Total: 22 | Errors: 1
+2026-08-03 18:16:11 [INFO] [2026-08-03T18:16:11.867444] Processed: 22 | Total: 24 | Errors: 2
+2026-08-03 18:16:16 [INFO] [2026-08-03T18:16:16.950073] Processed: 22 | Total: 24 | Errors: 2 (Test Stopped/Idle)
