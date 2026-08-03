@@ -487,9 +487,24 @@ class SimulatorControlUI:
         self.header_frame = tk.Frame(self.root, bg=self.bg_color, pady=10, padx=20)
         self.header_frame.pack(fill="x")
         
-        # Left Title
-        self.title_lbl = tk.Label(self.header_frame, text="Expleo BE Simulator", font=("Segoe UI", 16, "bold"), fg=self.accent_color, bg=self.bg_color)
+        # Left Title Container with Version Badge and About Button
+        title_container = tk.Frame(self.header_frame, bg=self.bg_color)
+        title_container.pack(side="left")
+
+        self.title_lbl = tk.Label(title_container, text="Expleo BE Simulator", font=("Segoe UI", 16, "bold"), fg=self.accent_color, bg=self.bg_color)
         self.title_lbl.pack(side="left")
+
+        self.ver_badge = tk.Label(title_container, text=" v0.2 ", font=("Segoe UI", 8, "bold"), fg="#ffffff", bg=self.accent_color, padx=5, pady=1)
+        self.ver_badge.pack(side="left", padx=(8, 8))
+
+        self.about_btn = tk.Button(
+            title_container, text="ℹ️ About", font=("Segoe UI", 8, "bold"),
+            bg=self.panel_color, fg=self.text_color,
+            activebackground=self.accent_color, activeforeground="#ffffff",
+            bd=1, relief="flat", highlightbackground=self.border_color, highlightthickness=1,
+            padx=8, pady=2, cursor="hand2", command=self.show_about_dialog
+        )
+        self.about_btn.pack(side="left")
         
         # Right Status and Counters
         status_container = tk.Frame(self.header_frame, bg=self.bg_color)
@@ -516,6 +531,74 @@ class SimulatorControlUI:
 
         self.theme_toggle = ThemeToggleSwitch(status_container, variable=self.dark_mode_var, command=self.apply_theme)
         self.theme_toggle.pack(side="left")
+
+    def show_about_dialog(self):
+        about_win = tk.Toplevel(self.root)
+        about_win.title("About Expleo BE Simulator")
+        about_win.geometry("540x490")
+        about_win.resizable(False, False)
+        about_win.configure(bg=self.bg_color)
+        about_win.transient(self.root)
+        about_win.grab_set()
+
+        try:
+            x = self.root.winfo_x() + (self.root.winfo_width() // 2) - 270
+            y = self.root.winfo_y() + (self.root.winfo_height() // 2) - 245
+            about_win.geometry(f"540x490+{max(0, x)}+{max(0, y)}")
+        except Exception:
+            pass
+
+        # Top Header Banner Card
+        banner = tk.Frame(about_win, bg=self.panel_color, pady=12, padx=20, bd=1, highlightbackground=self.border_color, highlightthickness=1)
+        banner.pack(fill="x", padx=15, pady=(15, 10))
+
+        title_frame = tk.Frame(banner, bg=self.panel_color)
+        title_frame.pack(anchor="w")
+
+        tk.Label(title_frame, text="Expleo BE Simulator", font=("Segoe UI", 16, "bold"), fg=self.accent_color, bg=self.panel_color).pack(side="left")
+        tk.Label(title_frame, text=" v0.2 ", font=("Segoe UI", 9, "bold"), fg="#ffffff", bg=self.accent_color, padx=6, pady=1).pack(side="left", padx=10)
+
+        tk.Label(banner, text="Payments API Stub & Performance Testing Simulator", font=("Segoe UI", 9, "italic"), fg=self.text_muted, bg=self.panel_color).pack(anchor="w", pady=(3, 0))
+
+        # Main Details Card
+        card = tk.Frame(about_win, bg=self.panel_color, padx=20, pady=15, bd=1, highlightbackground=self.border_color, highlightthickness=1)
+        card.pack(fill="both", expand=True, padx=15, pady=5)
+
+        # Section 1: Development & Maintenance
+        tk.Label(card, text="DEVELOPMENT & MAINTENANCE", font=("Segoe UI", 8, "bold"), fg=self.accent_color, bg=self.panel_color).pack(anchor="w", pady=(0, 2))
+        tk.Label(card, text="Developed and maintained by Expleo PT Team", font=("Segoe UI", 10, "bold"), fg=self.text_color, bg=self.panel_color).pack(anchor="w", pady=(0, 12))
+
+        # Section 2: Support & Contact Directory
+        tk.Label(card, text="SUPPORT & QUERY CONTACTS", font=("Segoe UI", 8, "bold"), fg=self.accent_color, bg=self.panel_color).pack(anchor="w", pady=(0, 4))
+
+        contacts = [
+            ("Jayanthan Subramanian", "jayanthan.subramanian@expleogroup.com"),
+            ("Manojh Muthusamy", "manojh.muthusamy@expleogroup.com"),
+            ("Srivatsan Kannan", "srivatsan.kannan@expleogroup.com")
+        ]
+
+        for name, email in contacts:
+            c_frame = tk.Frame(card, bg=self.panel_color)
+            c_frame.pack(fill="x", pady=2)
+            tk.Label(c_frame, text="• ", font=("Segoe UI", 10, "bold"), fg=self.accent_color, bg=self.panel_color).pack(side="left")
+            tk.Label(c_frame, text=f"{name}: ", font=("Segoe UI", 9, "bold"), fg=self.text_color, bg=self.panel_color).pack(side="left")
+            tk.Label(c_frame, text=email, font=("Segoe UI", 9), fg="#3b82f6", bg=self.panel_color).pack(side="left")
+
+        # Section 3: Tech Architecture Summary
+        tk.Label(card, text="SYSTEM CAPABILITIES", font=("Segoe UI", 8, "bold"), fg=self.accent_color, bg=self.panel_color).pack(anchor="w", pady=(14, 4))
+        desc_text = "High-throughput asynchronous FastAPI engine built for enterprise-grade response code simulation, delay emulation, mTLS / 2-way SSL authentication, and high-concurrency performance testing."
+        tk.Label(card, text=desc_text, font=("Segoe UI", 9), fg=self.text_muted, bg=self.panel_color, justify="left", wraplength=460).pack(anchor="w")
+
+        # Footer Action
+        footer = tk.Frame(about_win, bg=self.bg_color, pady=10)
+        footer.pack(fill="x", padx=15)
+
+        tk.Label(footer, text="© Expleo Group | Banking & Payments Solutions", font=("Segoe UI", 8), fg=self.text_muted, bg=self.bg_color).pack(side="left")
+        tk.Button(
+            footer, text="Close", font=("Segoe UI", 9, "bold"),
+            bg=self.accent_color, fg="#ffffff", activebackground=self.accent_color, activeforeground="#ffffff",
+            bd=0, padx=20, pady=4, cursor="hand2", command=about_win.destroy
+        ).pack(side="right")
 
     def build_left_panel(self):
         # Settings Card Panel

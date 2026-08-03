@@ -69,10 +69,26 @@ def add_history_record(record):
         history_records.append(record)
 
 # FastAPI App
+app_description = """
+### Expleo BE Simulator (Version v0.2)
+**Developed and maintained by Expleo PT Team**
+
+High-performance REST API Stub and Performance Testing Simulator.
+
+#### Support & Query Contacts:
+* **Jayanthan Subramanian**: `jayanthan.subramanian@expleogroup.com`
+* **Manojh Muthusamy**: `manojh.muthusamy@expleogroup.com`
+* **Srivatsan Kannan**: `srivatsan.kannan@expleogroup.com`
+"""
+
 app = FastAPI(
     title="Expleo BE Simulator",
-    description="A high-performance FastAPI simulator for the BE Simulator By Expleo PT Team.",
-    version="1.0.0",
+    description=app_description,
+    version="v0.2",
+    contact={
+        "name": "Expleo PT Team",
+        "email": "manojh.muthusamy@expleogroup.com",
+    },
     docs_url=None,
     redoc_url=None
 )
@@ -80,6 +96,23 @@ app = FastAPI(
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+@app.get("/about", tags=["System Information"], include_in_schema=True)
+async def get_about_info():
+    """
+    Returns enterprise system metadata, version details, and support contacts.
+    """
+    return {
+        "app_name": "Expleo BE Simulator",
+        "version": "v0.2",
+        "developed_and_maintained_by": "Expleo PT Team",
+        "query_contacts": [
+            {"name": "Jayanthan Subramanian", "email": "jayanthan.subramanian@expleogroup.com"},
+            {"name": "Manojh Muthusamy", "email": "manojh.muthusamy@expleogroup.com"},
+            {"name": "Srivatsan Kannan", "email": "srivatsan.kannan@expleogroup.com"}
+        ],
+        "copyright": "© Expleo Group | Enterprise Solutions"
+    }
 
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
