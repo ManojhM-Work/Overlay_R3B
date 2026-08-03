@@ -1725,7 +1725,6 @@ async def sct_initiation_v2(
 # ---------------------------------------------------------
 # 2e. GET Poll SCT Initiation V2
 # ---------------------------------------------------------
-@app.get("/payments/sct-initiation")
 @app.get("/payments/sct-initiation/{transactionId}")
 async def get_sct_initiation_v2(
     request: Request,
