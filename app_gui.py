@@ -288,38 +288,30 @@ class SimulatorControlUI:
         raw_get = get_val("get_response_mode", "200 - 000")
         raw_delete = get_val("delete_response_mode", "200 - 022")
 
+        def clean_val(val):
+            if not val: return ""
+            v_str = str(val).strip()
+            while v_str.endswith("-") or v_str.endswith(" "):
+                v_str = v_str[:-1].strip()
+            return v_str
+
         def norm_post(val):
-            if val == "201": return "201 - 000"
-            if val == "202": return "202 - 000"
-            if val == "400": return "400 - 001 - Signature calculation failed"
-            if val == "401": return "401 - 002 - Invalid client credentials"
-            if val == "404": return "404 - 012 - Transaction not found"
-            if val == "409": return "409 - 013 - Duplicate transaction ID"
-            if val == "500": return "500 - 999 - Internal system error"
-            if val == "503": return "503 - 009 - Service Temporarily Unavailable"
-            return val
+            c_val = clean_val(val)
+            if c_val == "201": return "201 - 000"
+            if c_val == "202": return "202 - 000"
+            return response_codes_catalog.normalize_code(c_val, default_fallback="201 - 000")
 
         def norm_get(val):
-            if val == "200": return "200 - 000"
-            if val == "202": return "202 - 000"
-            if val == "400": return "400 - 001 - Signature calculation failed"
-            if val == "401": return "401 - 002 - Invalid client credentials"
-            if val == "404": return "404 - 012 - Transaction not found"
-            if val == "409": return "409 - 013 - Duplicate transaction ID"
-            if val == "500": return "500 - 999 - Internal system error"
-            if val == "503": return "503 - 009 - Service Temporarily Unavailable"
-            return val
+            c_val = clean_val(val)
+            if c_val == "200": return "200 - 000"
+            if c_val == "202": return "202 - 000"
+            return response_codes_catalog.normalize_code(c_val, default_fallback="200 - 000")
 
         def norm_delete(val):
-            if val == "200": return "200 - 022"
-            if val == "202": return "202 - 023"
-            if val == "400": return "400 - 001 - Signature calculation failed"
-            if val == "401": return "401 - 002 - Invalid client credentials"
-            if val == "404": return "404 - 012 - Transaction not found"
-            if val == "409": return "409 - 013 - Duplicate transaction ID"
-            if val == "500": return "500 - 999 - Internal system error"
-            if val == "503": return "503 - 009 - Service Temporarily Unavailable"
-            return val
+            c_val = clean_val(val)
+            if c_val == "200": return "200 - 022"
+            if c_val == "202": return "202 - 023"
+            return response_codes_catalog.normalize_code(c_val, default_fallback="200 - 022")
 
         post_val = norm_post(raw_post)
         self.post_response_var = getattr(self, "post_response_var", None)
@@ -497,14 +489,14 @@ class SimulatorControlUI:
         self.ver_badge = tk.Label(title_container, text=" v0.2 ", font=("Segoe UI", 8, "bold"), fg="#ffffff", bg=self.accent_color, padx=5, pady=1)
         self.ver_badge.pack(side="left", padx=(8, 8))
 
-        self.about_btn = tk.Button(
-            title_container, text="ℹ️ About", font=("Segoe UI", 8, "bold"),
-            bg=self.panel_color, fg=self.text_color,
-            activebackground=self.accent_color, activeforeground="#ffffff",
-            bd=1, relief="flat", highlightbackground=self.border_color, highlightthickness=1,
-            padx=8, pady=2, cursor="hand2", command=self.show_about_dialog
-        )
-        self.about_btn.pack(side="left")
+        # self.about_btn = tk.Button(
+        #     title_container, text="ℹ️ About", font=("Segoe UI", 8, "bold"),
+        #     bg=self.panel_color, fg=self.text_color,
+        #     activebackground=self.accent_color, activeforeground="#ffffff",
+        #     bd=1, relief="flat", highlightbackground=self.border_color, highlightthickness=1,
+        #     padx=8, pady=2, cursor="hand2", command=self.show_about_dialog
+        # )
+        # self.about_btn.pack(side="left")
         
         # Right Status and Counters
         status_container = tk.Frame(self.header_frame, bg=self.bg_color)
@@ -699,10 +691,10 @@ class SimulatorControlUI:
         self.logging_lbl = tk.Label(opts_frame, text="Log", font=("Segoe UI", 8, "bold"), fg=self.text_color, bg=self.panel_color)
         self.logging_lbl.pack(side="left", padx=(5, 10))
 
-        self.random_chk = ToggleSwitch(opts_frame, variable=self.random_response_var, command=self.save_settings)
-        self.random_chk.pack(side="left")
-        self.random_lbl = tk.Label(opts_frame, text="Rand", font=("Segoe UI", 8, "bold"), fg=self.text_color, bg=self.panel_color)
-        self.random_lbl.pack(side="left", padx=(5, 10))
+        # self.random_chk = ToggleSwitch(opts_frame, variable=self.random_response_var, command=self.save_settings)
+        # self.random_chk.pack(side="left")
+        # self.random_lbl = tk.Label(opts_frame, text="Rand", font=("Segoe UI", 8, "bold"), fg=self.text_color, bg=self.panel_color)
+        # self.random_lbl.pack(side="left", padx=(5, 10))
 
         self.perf_chk = ToggleSwitch(opts_frame, variable=self.high_perf_var, command=self.save_settings)
         self.perf_chk.pack(side="left")

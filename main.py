@@ -6,7 +6,7 @@ import json
 import asyncio
 import random
 from datetime import datetime
-from typing import Optional, Any
+from typing import Optional, Any, Tuple
 import uvicorn
 from fastapi import FastAPI, Header, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse, FileResponse
@@ -70,25 +70,21 @@ def add_history_record(record):
 
 # FastAPI App
 app_description = """
-### Expleo BE Simulator (Version v0.2)
-**Developed and maintained by Expleo PT Team**
+
+
 
 High-performance REST API Stub and Performance Testing Simulator.
 
-#### Support & Query Contacts:
-* **Jayanthan Subramanian**: `jayanthan.subramanian@expleogroup.com`
-* **Manojh Muthusamy**: `manojh.muthusamy@expleogroup.com`
-* **Srivatsan Kannan**: `srivatsan.kannan@expleogroup.com`
 """
 
 app = FastAPI(
     title="Expleo BE Simulator",
     description=app_description,
     version="v0.2",
-    contact={
-        "name": "Expleo PT Team",
-        "email": "manojh.muthusamy@expleogroup.com",
-    },
+    # contact={
+    #     "name": "Expleo PT Team",
+    #     "email": "manojh.muthusamy@expleogroup.com",
+    # },
     docs_url=None,
     redoc_url=None
 )
@@ -97,22 +93,22 @@ static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-@app.get("/about", tags=["System Information"], include_in_schema=True)
-async def get_about_info():
-    """
-    Returns enterprise system metadata, version details, and support contacts.
-    """
-    return {
-        "app_name": "Expleo BE Simulator",
-        "version": "v0.2",
-        "developed_and_maintained_by": "Expleo PT Team",
-        "query_contacts": [
-            {"name": "Jayanthan Subramanian", "email": "jayanthan.subramanian@expleogroup.com"},
-            {"name": "Manojh Muthusamy", "email": "manojh.muthusamy@expleogroup.com"},
-            {"name": "Srivatsan Kannan", "email": "srivatsan.kannan@expleogroup.com"}
-        ],
-        "copyright": "© Expleo Group | Enterprise Solutions"
-    }
+# @app.get("/about", tags=["System Information"], include_in_schema=True)
+# async def get_about_info():
+#     """
+#     Returns enterprise system metadata, version details, and support contacts.
+#     """
+#     return {
+#         "app_name": "Expleo BE Simulator",
+#         "version": "v0.2",
+#         "developed_and_maintained_by": "Expleo PT Team",
+#         "query_contacts": [
+#             {"name": "Jayanthan Subramanian", "email": "jayanthan.subramanian@expleogroup.com"},
+#             {"name": "Manojh Muthusamy", "email": "manojh.muthusamy@expleogroup.com"},
+#             {"name": "Srivatsan Kannan", "email": "srivatsan.kannan@expleogroup.com"}
+#         ],
+#         "copyright": "© Expleo Group | Enterprise Solutions"
+#     }
 
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
@@ -240,7 +236,41 @@ def normalize_delete_mode(mode: str) -> str:
     if mode == "202": return "202 - 023"
     return response_codes_catalog.normalize_code(mode, default_fallback="200 - 022")
 
-def make_response_headers(request_headers: dict) -> dict:
+def parse_response_mode(response_mode: str, fallback_outcome: str = "000") -> Tuple[int, str, str]:
+    if not response_mode:
+        return 200, fallback_outcome, ""
+
+    mode_str = str(response_mode).strip()
+    while mode_str.endswith("-") or mode_str.endswith(" "):
+        mode_str = mode_str[:-1].strip()
+
+    parts = [p.strip() for p in mode_str.split(" - ") if p.strip()]
+    if not parts:
+        return 200, fallback_outcome, ""
+    try:
+        status_code = int(parts[0])
+    except ValueError:
+        status_code = 200
+
+    if len(parts) > 1:
+        outcome = parts[1].rstrip(" -").strip()
+        error_msg = parts[2].strip() if len(parts) > 2 else ""
+    else:
+        if status_code in (200, 201, 202):
+            outcome = fallback_outcome
+            error_msg = ""
+        else:
+            err_info = ERROR_OUTCOMES.get(status_code, ("999", "Unknown Simulated Error"))
+            outcome = err_info[0]
+            error_msg = err_info[1]
+
+    return status_code, outcome, error_msg
+
+import config
+import response_codes_catalog
+import jws_helper
+
+def make_response_headers(request_headers: dict, response_payload: Optional[Any] = None) -> dict:
     def get_str(key, fallback="N/A"):
         val = request_headers.get(key)
         if val is None:
@@ -251,6 +281,42 @@ def make_response_headers(request_headers: dict) -> dict:
             return fallback
         return str(val)
 
+    jws_sig = ""
+    if response_payload is not None:
+        try:
+            key_path = config.Config.get("server", "ssl_keyfile", default="certs/server.key")
+            cert_path = config.Config.get("server", "ssl_certfile", default="certs/server.crt")
+            if not key_path or not os.path.exists(key_path):
+                key_path = "certs/server.key"
+            if not cert_path or not os.path.exists(cert_path):
+                cert_path = "certs/server.crt"
+
+            if os.path.exists(key_path):
+                jws_sig = jws_helper.compose_detached_jws(
+                    payload=response_payload,
+                    private_key_input=key_path,
+                    cert_input=cert_path if os.path.exists(cert_path) else None
+                )
+        except Exception as e:
+            logger.warning(f"Could not generate JWS signature: {e}")
+
+    if not jws_sig:
+        req_sig = get_str("x-jws-signature", "")
+        if req_sig and req_sig.startswith("eyJ"):
+            jws_sig = req_sig
+        else:
+            try:
+                key_path = "certs/server.key"
+                cert_path = "certs/server.crt"
+                if os.path.exists(key_path):
+                    jws_sig = jws_helper.compose_detached_jws(
+                        payload={},
+                        private_key_input=key_path,
+                        cert_input=cert_path if os.path.exists(cert_path) else None
+                    )
+            except Exception:
+                jws_sig = req_sig if (req_sig and req_sig not in ("detached-signature", "Detached signature")) else "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiJkZWZhdWx0In0..signature"
+
     return {
         "x-idempotency-key": get_str("x-idempotency-key"),
         "X-Request-ID": get_str("x-request-id"),
@@ -258,7 +324,7 @@ def make_response_headers(request_headers: dict) -> dict:
         "x-ratelimit-remaining": "8",
         "x-ratelimit-limit": "10",
         "x-ratelimit-reset": str(int(time.time()) + 60),
-        "x-jws-signature": get_str("x-jws-signature", ""),
+        "x-jws-signature": jws_sig,
         "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
         "Cache-Control": "no-store, no-cache, must-revalidate",
         "Pragma": "no-cache",
@@ -389,7 +455,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         "merchantTrxId": merchant_trx_id
     }
     
-    resp_headers = make_response_headers(raw_headers)
+    resp_headers = make_response_headers(raw_headers, response_payload=resp_body)
     elapsed_ms = (time.perf_counter() - start_time) * 1000
     
     # Report to logs and UI
@@ -599,20 +665,7 @@ async def verify_reserve_buyer_iban(
         return await handle_timeout_and_no_response(request, delay, timeout_mode, response_mode)
 
     # Handle Standard Status Codes
-    parts = response_mode.split(" - ")
-    status_code = int(parts[0])
-    if len(parts) > 1:
-        outcome = parts[1]
-        error_msg = parts[2] if len(parts) > 2 else ""
-    else:
-        # Backward compatibility fallback
-        if status_code in (201, 202):
-            outcome = "000"
-            error_msg = ""
-        else:
-            err_info = ERROR_OUTCOMES.get(status_code, ("999", "Unknown Simulated Error"))
-            outcome = err_info[0]
-            error_msg = err_info[1]
+    status_code, outcome, error_msg = parse_response_mode(response_mode, fallback_outcome="000")
 
     resp_body = {
         "outcome": outcome,
@@ -653,6 +706,7 @@ async def verify_reserve_buyer_iban(
 
     # Periodic logging handles output
 
+    resp_headers = make_response_headers(headers, response_payload=resp_body)
     send_traffic_update(
         "/p2b/payments/verify-reserve-buyer-iban", "POST", req_json, resp_body, 
         str(status_code), elapsed_ms, headers["x-idempotency-key"], transaction_id, 0, headers, resp_headers
@@ -788,6 +842,7 @@ async def get_verify_reserve_buyer_iban(
 
     # Periodic logging handles output
 
+    resp_headers = make_response_headers(raw_headers, response_payload=resp_body)
     send_traffic_update(
         "/p2b/payments/verify-reserve-buyer-iban", "GET", {"transactionId": transactionId, "merchantTrxId": merchantTrxId}, resp_body, 
         str(status_code), elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
@@ -909,6 +964,7 @@ async def verify_reserve_merchant_iban(
                 "authorizationID": auth_id
             }
 
+    resp_headers = make_response_headers(headers, response_payload=resp_body)
     send_traffic_update(
         "/p2b/payments/verify-reserve-merchant-iban", "POST", req_json, resp_body, 
         str(status_code), elapsed_ms, headers["x-idempotency-key"], transaction_id, 0, headers, resp_headers
@@ -1043,6 +1099,7 @@ async def get_verify_reserve_merchant_iban(
         with stats_lock:
             stats["errors"] += 1
 
+    resp_headers = make_response_headers(raw_headers, response_payload=resp_body)
     send_traffic_update(
         "/p2b/payments/verify-reserve-merchant-iban", "GET", {"transactionId": transactionId, "merchantTrxId": merchantTrxId}, resp_body, 
         str(status_code), elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
@@ -1160,6 +1217,7 @@ async def sct_initiation(
                 "trn": trn or f"trn{random.randint(100000000000, 999999999999)}"
             }
 
+    resp_headers = make_response_headers(headers, response_payload=resp_body)
     send_traffic_update(
         "/p2b/payments/sct-initiation", "POST", req_json, resp_body, 
         str(status_code), elapsed_ms, headers["x-idempotency-key"], transaction_id, 0, headers, resp_headers
@@ -1296,6 +1354,7 @@ async def get_sct_initiation(
         with stats_lock:
             stats["errors"] += 1
 
+    resp_headers = make_response_headers(raw_headers, response_payload=resp_body)
     send_traffic_update(
         "/p2b/payments/sct-initiation", "GET", {"transactionId": transactionId, "merchantTrxId": merchantTrxId}, resp_body, 
         str(status_code), elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
@@ -1415,6 +1474,7 @@ async def verify_debtor_account(
                 "debtorAccount": debtor_info_dict
             }
 
+    resp_headers = make_response_headers(headers, response_payload=resp_body)
     send_traffic_update(
         "/payments/verify-debtor-account", "POST", req_json, resp_body, 
         str(status_code), elapsed_ms, headers["x-idempotency-key"], transaction_id, 0, headers, resp_headers
@@ -1543,6 +1603,7 @@ async def get_verify_debtor_account(
         with stats_lock:
             stats["errors"] += 1
 
+    resp_headers = make_response_headers(raw_headers, response_payload=resp_body)
     send_traffic_update(
         "/payments/verify-debtor-account", "GET", {"transactionId": transactionId}, resp_body, 
         str(status_code), elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
@@ -1652,6 +1713,7 @@ async def sct_initiation_v2(
                 "trn": trn or f"trn{random.randint(100000000000, 999999999999)}"
             }
 
+    resp_headers = make_response_headers(headers, response_payload=resp_body)
     send_traffic_update(
         "/payments/sct-initiation", "POST", req_json, resp_body, 
         str(status_code), elapsed_ms, headers["x-idempotency-key"], transaction_id, 0, headers, resp_headers
@@ -1776,6 +1838,7 @@ async def get_sct_initiation_v2(
         with stats_lock:
             stats["errors"] += 1
 
+    resp_headers = make_response_headers(raw_headers, response_payload=resp_body)
     send_traffic_update(
         f"/payments/sct-initiation/{transactionId if transactionId else ''}", "GET", None, resp_body, 
         str(status_code), elapsed_ms, corr_id, msg_id, current_poll, raw_headers, resp_headers
@@ -1908,6 +1971,7 @@ async def delete_reserve(
 
     # Periodic logging handles output
 
+    resp_headers = make_response_headers(raw_headers, response_payload=resp_body)
     send_traffic_update(
         f"/payments/reserve/{transactionId}", "DELETE", None, resp_body, 
         str(status_code), elapsed_ms, corr_id, msg_id, 0, raw_headers, resp_headers

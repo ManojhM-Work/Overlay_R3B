@@ -1,5 +1,6 @@
 import os
 import datetime
+import socket
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes
@@ -8,6 +9,16 @@ from cryptography.hazmat.primitives import serialization
 import ipaddress
 
 from cryptography.hazmat.primitives.serialization import pkcs12
+
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
 
 def generate_self_signed_certs(output_dir="certs"):
     os.makedirs(output_dir, exist_ok=True)
@@ -20,10 +31,21 @@ def generate_self_signed_certs(output_dir="certs"):
 
     # 1. Generate Server Private Key & Certificate
     if not (os.path.exists(server_key_path) and os.path.exists(server_crt_path)):
-        print("Generating Server Key and Certificate...")
+        local_ip = get_local_ip()
+        san_entries = [
+            x509.DNSName("localhost"),
+            x509.IPAddress(ipaddress.ip_address("127.0.0.1"))
+        ]
+        if local_ip and local_ip != "127.0.0.1":
+            try:
+                san_entries.append(x509.IPAddress(ipaddress.ip_address(local_ip)))
+            except Exception:
+                pass
+
+        print(f"Generating Server Key and Certificate with SAN IPs: 127.0.0.1, {local_ip}...")
         server_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
         subject = issuer = x509.Name([
-            x509.NameAttribute(NameOID.COMMON_NAME, "127.0.0.1"),
+            x509.NameAttribute(NameOID.COMMON_NAME, local_ip),
             x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Expleo Simulator"),
         ])
         server_cert = (
@@ -35,7 +57,7 @@ def generate_self_signed_certs(output_dir="certs"):
             .not_valid_before(datetime.datetime.now(datetime.timezone.utc))
             .not_valid_after(datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=365))
             .add_extension(
-                x509.SubjectAlternativeName([x509.DNSName("localhost"), x509.IPAddress(ipaddress.ip_address("127.0.0.1"))]),
+                x509.SubjectAlternativeName(san_entries),
                 critical=False,
             )
             .sign(server_key, hashes.SHA256())
@@ -57,7 +79,7 @@ def generate_self_signed_certs(output_dir="certs"):
         print("Generating Client Key and Certificate (Client CA)...")
         client_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
         client_subject = client_issuer = x509.Name([
-            x509.NameAttribute(NameOID.COMMON_NAME, "UAEIPP Client Participant"),
+            x509.NameAttribute(NameOID.COMMON_NAME, "Expleo Client Participant"),
             x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Client Bank"),
         ])
         client_cert = (
