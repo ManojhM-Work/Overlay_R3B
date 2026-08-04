@@ -1,6 +1,6 @@
 {
   "server": {
-    "api_host": "127.0.0.1",
+    "api_host": "10.192.192.67",
     "api_port": "8085",
     "response_delay_seconds": 0.0,
     "post_response_mode": "429 - 384 - Too many requests.",
@@ -34,7 +34,7 @@
     "buyer": {
       "response_delay_seconds": 0.0,
       "post_response_mode": "202 - 000",
-      "get_response_mode": "200 - 004",
+      "get_response_mode": "Timeout - Polling",
       "delete_response_mode": "200 - 022",
       "timeout_mode": "Sleep",
       "poll_success_count": 3,

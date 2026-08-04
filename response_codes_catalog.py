@@ -727,6 +727,8 @@
 # ]
 
 POST_RESPONSE_OPTIONS = [
+    "Timeout",
+    "No Response",
     "201 - 026",
     "202 - 027",
     "400 - 224 - Unknown bankUserId",
@@ -853,6 +855,9 @@ POST_RESPONSE_OPTIONS = [
 ]
 
 GET_RESPONSE_OPTIONS = [
+    "Timeout - Polling",
+    "Timeout",
+    "No Response",
     "200 - 004",
     "202 - 003",
     "400 - 206 - Unknown bankUserId",
@@ -931,6 +936,8 @@ GET_RESPONSE_OPTIONS = [
 ]
 
 DELETE_RESPONSE_OPTIONS = [
+    "Timeout",
+    "No Response",
     "200 - 022",
     "200 - 024",
     "202 - 023",
@@ -966,7 +973,7 @@ DELETE_RESPONSE_OPTIONS = [
 CODE_LOOKUP_MAP = {}
 
 for _opt in POST_RESPONSE_OPTIONS + GET_RESPONSE_OPTIONS + DELETE_RESPONSE_OPTIONS:
-    if " - " in _opt:
+    if " - " in _opt and _opt not in ("Timeout - Polling", "Timeout", "No Response"):
         _parts = _opt.split(" - ", 2)
         _status = _parts[0]
         _code = _parts[1]
